@@ -22,9 +22,11 @@ class Counter:
     analyse(x_center, half_width, y_center, half_height, y_bar_start,
     half_bar_width, half_bar_height, tracker_type='BOOSTING')
         Performs the analysis to count the press moves.
+    draw_press_counter(self, outname, frame_numbers)
+        Creates a video with text of the press moves.
     """
 
-    def __init__(self, filename, outname="out.mp4"):
+    def __init__(self, filename):
         """
         Parameters
         ----------
@@ -34,7 +36,6 @@ class Counter:
             Name of the output video.
         """
         self.filename = filename
-        self.outname = outname
 
     def analyse(self,
                     x_center, half_width,
@@ -79,6 +80,11 @@ class Counter:
             Name of one of the built-in trackers in OpenCV.
         analysis : bool
             Flag used for analysis during development.
+
+        Returns
+        -------
+        ndarray
+            Indices of the frames where the press is in the bottom position.
         """
 
         cap = cv.VideoCapture(self.filename)
@@ -210,19 +216,20 @@ class Counter:
         if analysis:
             plt.plot(peaks, y_pos_history[peaks], 'X')
             plt.savefig('output')
+            cv.destroyAllWindows()
 
-        cv.destroyAllWindows()
         cap.release()
 
-        # Draw text to coun the press moves in the video
-        self.draw_press_counter(peaks)
+        return peaks
 
-    def draw_press_counter(self, frame_numbers):
+    def draw_press_counter(self, outname, frame_numbers):
         """
         Creates a video with text of the press moves.
 
         Parameters
         ----------
+        outname : str
+            Name of the video file to be created.
         frame_numbers : ndarray
             Indices of the frames where the press is in the bottom position.
         """
@@ -244,7 +251,7 @@ class Counter:
 
         # Output video.
         out = cv.VideoWriter(
-            self.outname,
+            outname,
             cv.VideoWriter_fourcc('H','2','6','4'),
             fps,
             (frame_width, frame_height))
@@ -314,7 +321,8 @@ class Counter:
 def main():
     parser = argparse.ArgumentParser(description='plates')
     parser.add_argument('filename', type=str, help='Input video filename')
-    parser.add_argument('outname', type=str, help='Output video filename')
+    parser.add_argument('-o', dest='outname', type=str,
+        help='Name of the output video file.')
 
     parser.add_argument('-xc', dest='x_center', type=int, default=188,
         help='Horizontal position of the center of the main area.')
@@ -348,6 +356,7 @@ def main():
     filename = args.filename
     outname = args.outname
 
+    outname = args.outname
     xc = args.x_center
     hw = args.half_width
     yc = args.y_center
@@ -358,13 +367,19 @@ def main():
     tracker_type = args.tracker_type
     analysis = args.analysis
 
-    counter = Counter(filename, outname)
+    counter = Counter(filename)
 
     start = time()
-    counter.analyse(xc, hw, yc, hh, yb, bw, bh, tracker_type, analysis)
+    peaks_indices = counter.analyse(xc, hw, yc, hh, yb, bw, bh, tracker_type, analysis)
     end = time()
-
     print("Time to process: {:d}s".format(int(end - start)))
+
+    if outname is not None:
+        # Draw text to coun the press moves in the video
+        start = time()
+        counter.draw_press_counter(outname, peaks_indices)
+        end = time()
+        print("Time to create output video: {:d}s".format(int(end - start)))
 
 if __name__ == '__main__':
     main()
