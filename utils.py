@@ -16,11 +16,7 @@ def find_peaks(points, threshold=0.5):
 
     return peaks[valid_peaks.ravel()]
 
-def normalize(points):
-    # Normalize the points
-    min_ = np.min(points)
-    max_ = np.max(points)
-
+def normalize(points, min_, max_):
     points = points - min_
     points = points / (max_ - min_)
 

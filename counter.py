@@ -160,7 +160,6 @@ class Counter:
 
             for idx, frames_plate in enumerate(frames_plate_list):
                 if len(frames_plate) > 0 and frame_counter == frames_plate[0]:
-                    print("plate")
                     plate_counts[idx] = plate_counts[idx] + 1
                     frames_plate_list[idx] = frames_plate[1:]
 

@@ -188,8 +188,9 @@ class PressCounter:
             raise ValueError('Tracker is not initialized')
 
         # Normalize the vertical positions of the top-left corner of the
-        # bounding box of the tracking object.
-        self.y_pos_history = normalize(self.y_pos_history)
+        # bounding box of the tracking object. The limits are the initial y
+        # position and 25, which is a value determined by observation
+        self.y_pos_history = normalize(self.y_pos_history, self.y_bar_start, 25)
 
         # Find the peaks of the sine-shape curve.
         self.peaks = find_peaks(self.y_pos_history, 0.5)

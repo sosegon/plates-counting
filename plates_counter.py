@@ -34,5 +34,9 @@ class PlatesCounter:
         self.light_history = np.hstack((self.light_history, light_avg))
 
     def calculate_plates(self):
-        self.light_history = normalize(self.light_history)
+        if self.light_history is None:
+            raise ValueError('Counter is not initialized')
+
+        # The limits for lightness in HLS are 0 and 255 by default
+        self.light_history = normalize(self.light_history, 0, 255)
         self.peaks = find_peaks(self.light_history)
