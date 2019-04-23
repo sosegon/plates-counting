@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from time import sleep, time
 from press_counter import PressCounter
+from plates_counter import PlatesCounter
 
 class Counter:
     """
@@ -35,7 +36,7 @@ class Counter:
         self.filename = filename
 
 
-    def analyse(self, press_counter, analysis=False):
+    def analyse(self, press_counter, plates_counter_list, analysis=False):
         """
         Analyses the video to count the number of press moves.
 
@@ -52,6 +53,8 @@ class Counter:
         # Set init frame
         ok, frame = cap.read()
         press_counter.init_tracker(frame)
+        for plates_counter in plates_counter_list:
+            plates_counter.init(frame)
 
         if analysis:
             press_counter.draw_inner_area(frame)
@@ -65,6 +68,8 @@ class Counter:
                 break
 
             press_counter.process_frame(frame)
+            for plates_counter in plates_counter_list:
+                plates_counter.process_frame(frame)
 
             if analysis:
                 # Slow down the movement for better visualization.
@@ -77,17 +82,28 @@ class Counter:
                 break
 
         press_counter.calculate_press_down_positions()
-        peaks = press_counter.peaks
+        for plates_counter in plates_counter_list:
+            plates_counter.calculate_plates()
 
         if analysis:
+            peaks = press_counter.peaks
             plt.plot(press_counter.y_pos_history)
             plt.plot(peaks, press_counter.y_pos_history[peaks], 'X');
-            plt.savefig('output')
+            plt.savefig('press')
+            plt.figure()
+
+            for idx, plates_counter in enumerate(plates_counter_list):
+                peaks = plates_counter.peaks
+                plt.plot(plates_counter.light_history)
+                plt.plot(peaks, plates_counter.light_history[peaks], 'X')
+                plt.savefig('plates{:d}'.format(idx))
+                plt.figure()
+
             cv.destroyAllWindows()
 
         cap.release()
 
-    def draw_press_counter(self, outname, frame_numbers):
+    def draw_press_counter(self, outname, frames_press, frames_plate_list):
         """
         Creates a video with text of the press moves.
 
@@ -95,7 +111,7 @@ class Counter:
         ----------
         outname : str
             Name of the video file to be created.
-        frame_numbers : ndarray
+        frames_press : ndarray
             Indices of the frames where the press is in the bottom position.
         """
 
@@ -125,6 +141,10 @@ class Counter:
         frame_counter = 0
         press_moves = 0
 
+        plate_counts = []
+        for frames_plate in frames_plate_list:
+            plate_counts.append(0)
+
         font = cv.FONT_HERSHEY_SIMPLEX
 
         while(1):
@@ -134,9 +154,15 @@ class Counter:
                 break
 
             # Increase the number of press moves.
-            if len(frame_numbers) > 0 and frame_counter == frame_numbers[0]:
+            if len(frames_press) > 0 and frame_counter == frames_press[0]:
                 press_moves = press_moves + 1
-                frame_numbers = frame_numbers[1:]
+                frames_press = frames_press[1:]
+
+            for idx, frames_plate in enumerate(frames_plate_list):
+                if len(frames_plate) > 0 and frame_counter == frames_plate[0]:
+                    print("plate")
+                    plate_counts[idx] = plate_counts[idx] + 1
+                    frames_plate_list[idx] = frames_plate[1:]
 
             cv.putText(
                 frame,
@@ -147,6 +173,17 @@ class Counter:
                 (255, 255, 255),
                 2,
                 cv.LINE_AA)
+
+            for idx, plate_count in enumerate(plate_counts):
+                cv.putText(
+                    frame,
+                    'Plate count: {}'.format(plate_count),
+                    (40, 70 + 30 * idx),
+                    font,
+                    0.5,
+                    (255, 255, 0),
+                    2,
+                    cv.LINE_AA)
 
             out.write(frame)
             frame_counter = frame_counter + 1
@@ -206,15 +243,21 @@ def main():
     counter = Counter(filename)
     press_counter = PressCounter(xc, hw, yc, hh, yb, bw, bh, tracker_type)
 
+    xp1, yp1, wp1, hp1 = 137, 198, 48, 15
+    xp2, yp2, wp2, hp2 = 216, 198, 42, 15
+    plates_counter_1 = PlatesCounter(xp1, yp1, wp1, hp2)
+    plates_counter_2 = PlatesCounter(xp2, yp2, wp2, hp2)
+
     start = time()
-    counter.analyse(press_counter, analysis)
+    counter.analyse(press_counter, [plates_counter_1, plates_counter_2], analysis)
     end = time()
     print("Time to process: {:d}s".format(int(end - start)))
 
     if outname is not None:
         # Draw text to coun the press moves in the video
         start = time()
-        counter.draw_press_counter(outname, press_counter.peaks)
+        counter.draw_press_counter(outname, press_counter.peaks,
+            [plates_counter_1.peaks, plates_counter_2.peaks])
         end = time()
         print("Time to create output video: {:d}s".format(int(end - start)))
 
