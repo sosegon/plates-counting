@@ -1,6 +1,6 @@
 import cv2 as cv
 import numpy as np
-from scipy.signal import find_peaks
+from utils import normalize, find_peaks, extract_area
 
 class PressCounter:
     """
@@ -145,7 +145,8 @@ class PressCounter:
         """
 
         # Extract the main area.
-        main_area = self.__extract_main_area(frame)
+        main_area = extract_area(frame, self.x_start, self.y_start,
+            self.x_end - self.x_start, self.y_end - self.y_start)
 
         # Initialize the tracker with the main and inner areas.
         self.tracker.init(main_area, self.bbox)
@@ -167,7 +168,9 @@ class PressCounter:
         if self.y_pos_history is None:
             raise ValueError('Tracker is not initialized')
 
-        main_area = self.__extract_main_area(frame)
+        main_area = extract_area(frame, self.x_start, self.y_start,
+            self.x_end - self.x_start, self.y_end - self.y_start)
+
         ok, bbox = self.tracker.update(main_area)
 
         if ok:
@@ -186,19 +189,10 @@ class PressCounter:
 
         # Normalize the vertical positions of the top-left corner of the
         # bounding box of the tracking object.
-        min_ = np.min(self.y_pos_history)
-        max_ = np.max(self.y_pos_history)
-
-        self.y_pos_history = self.y_pos_history - min_
-        self.y_pos_history = self.y_pos_history / (max_ - min_)
+        self.y_pos_history = normalize(self.y_pos_history)
 
         # Find the peaks of the sine-shape curve.
-        peaks, _ = find_peaks(self.y_pos_history, distance=15)
-
-        # Filter the peaks to get just those corresponding to the press in the
-        # down position.
-        valid_peaks = np.argwhere(self.y_pos_history[peaks] > 0.5)
-        self.peaks = peaks[valid_peaks.ravel()]
+        self.peaks = find_peaks(self.y_pos_history, 0.5)
 
     def draw_inner_area(self, frame):
         """
@@ -210,7 +204,8 @@ class PressCounter:
             3-channel image where the inner area will be drawn.
         """
 
-        main_area = self.__extract_main_area(frame)
+        main_area = extract_area(frame, self.x_start, self.y_start,
+            self.x_end - self.x_start, self.y_end - self.y_start)
         x, y = int(self.bbox[0]), int(self.bbox[1])
         w, h = int(self.bbox[2]), int(self.bbox[3])
 
@@ -224,17 +219,3 @@ class PressCounter:
         main_area = cv.resize(main_area, (W * 3, H * 3))
 
         cv.imshow("Tracking", main_area)
-
-    def __extract_main_area(self, frame):
-        """
-        Extracts the main area from a frame
-
-        Parameters
-        ----------
-        frame : ndarray
-            3-channel image.
-        """
-
-        main_area = frame[self.y_start:self.y_end, self.x_start:self.x_end, :]
-
-        return main_area
