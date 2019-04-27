@@ -1,8 +1,9 @@
 import cv2 as cv
 import numpy as np
 from utils import extract_area
+from section_processor import SectionProcessor
 
-class LineAlarm:
+class LineAlarm(SectionProcessor):
     """
     A class to find the points where the plates in bands reach marks
 
@@ -60,6 +61,7 @@ class LineAlarm:
     calculate_alarms()
         Calculates the frames where the alarms have to be triggered.
     """
+
     def __init__(self, src_points, dst_dims):
         """
         Parameters
@@ -142,6 +144,30 @@ class LineAlarm:
 
         return i
 
+
+    def calculate_positions(self):
+        """
+        Calculates the frames where the alarms have to be triggered.
+        """
+        self.__calculate_alarms()
+
+    def __calculate_alarms(self):
+        """
+        Calculates the frames where the alarms have to be triggered.
+        Method just for easy reading.
+        """
+        upper_left = np.argwhere(self.history_left >= self.upper_left_rect[1][1] - self.offset).ravel()
+        upper_right = np.argwhere(self.history_right >= self.upper_right_rect[1][1] - self.offset).ravel()
+        lower_left = np.argwhere(self.history_left >= self.lower_left_rect[1][1] - self.offset).ravel()
+        lower_right = np.argwhere(self.history_right >= self.lower_right_rect[1][1] - self.offset).ravel()
+
+        upper_left = self.__def_limit(upper_left)
+        upper_right = self.__def_limit(upper_right)
+        lower_left = self.__def_limit(lower_left)
+        lower_right = self.__def_limit(lower_right)
+
+        self.alarms = [upper_left, upper_right, lower_left, lower_right]
+
     def warp(self, frame):
         """
         Warp a frame using the transformation matrix.
@@ -173,23 +199,6 @@ class LineAlarm:
 
         return warpFrame
 
-    def calculate_alarms(self):
-        """
-        Calculates the frames where the alarms have to be triggered.
-        """
-
-        upper_left = np.argwhere(self.history_left >= self.upper_left_rect[1][1] - self.offset).ravel()
-        upper_right = np.argwhere(self.history_right >= self.upper_right_rect[1][1] - self.offset).ravel()
-        lower_left = np.argwhere(self.history_left >= self.lower_left_rect[1][1] - self.offset).ravel()
-        lower_right = np.argwhere(self.history_right >= self.lower_right_rect[1][1] - self.offset).ravel()
-
-        upper_left = self.__def_limit(upper_left)
-        upper_right = self.__def_limit(upper_right)
-        lower_left = self.__def_limit(lower_left)
-        lower_right = self.__def_limit(lower_right)
-
-        self.alarms = [upper_left, upper_right, lower_left, lower_right]
-
     def __process_frame(self, frame):
         """
         Process a frame to apply thresholding and add the limits to the history
@@ -205,6 +214,7 @@ class LineAlarm:
         (ndarray, int, int) : Thresheld warped image for visualization, limit of
         the left threshold, limit of the right threshold.
         """
+
         # Frame in zenital view
         warp = self.warp(frame)
 

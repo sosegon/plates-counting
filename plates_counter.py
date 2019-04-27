@@ -1,8 +1,9 @@
 import cv2 as cv
 import numpy as np
 from utils import extract_area, find_peaks, normalize
+from section_processor import SectionProcessor
 
-class PlatesCounter:
+class PlatesCounter(SectionProcessor):
     """
     A class to count the plates coming out a shoot in a manufacturing machine.
 
@@ -36,6 +37,7 @@ class PlatesCounter:
     calculate_plates()
         Calculates the frames where the average lightness is high.
     """
+
     def __init__(self, x_start, y_start, width, height):
         """
         Parameters
@@ -97,10 +99,18 @@ class PlatesCounter:
         light_avg = np.mean(area[:, :, 1])
         self.light_history = np.hstack((self.light_history, light_avg))
 
-    def calculate_plates(self):
+    def calculate_positions(self):
         """
         Calculates the frames where the average lightness is high.
         The result is set to the peaks attribute.
+        """
+        self.__calculate_plates()
+
+    def __calculate_plates(self):
+        """
+        Calculates the frames where the average lightness is high.
+        The result is set to the peaks attribute.
+        Method just for easy reading.
         """
         if self.light_history is None:
             raise ValueError('Counter is not initialized')

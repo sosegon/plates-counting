@@ -34,14 +34,14 @@ class Counter:
         self.filename = filename
 
 
-    def analyse(self, press_counter, plates_counter_list, line_alarm, analysis=False):
+    def analyse(self, processors, analysis=False):
         """
         Analyses the video to count the number of press moves.
 
         Parameters
         ----------
-        press_counter : PressCounter
-            Object in charge of count the press moves.
+        processors : list of SectionProcessor
+            Objects that process different section of frames.
         analysis : bool
             Flag used for analysis during development.
         """
@@ -50,55 +50,50 @@ class Counter:
 
         # Set init frame
         ok, frame = cap.read()
-        line_alarm.init(frame)
-        press_counter.init_tracker(frame)
-        for plates_counter in plates_counter_list:
-            plates_counter.init(frame)
+        for processor in processors:
+            processor.init(frame)
 
-        if analysis:
-            press_counter.draw_inner_area(frame)
-            sleep(0.0)
+            if analysis and type(processor).__name__ == 'PressCounter':
+                processor.draw_inner_area(frame)
+                sleep(0.0)
 
         while(1):
-
             ok, frame = cap.read()
 
             if not ok:
                 break
 
-            line_alarm.process_frame(frame)
-            press_counter.process_frame(frame)
-            for plates_counter in plates_counter_list:
-                plates_counter.process_frame(frame)
+            for processor in processors:
+                processor.process_frame(frame)
 
-            if analysis:
-                # Slow down the movement for better visualization.
-                sleep(0.0)
-                press_counter.draw_inner_area(frame)
+                if analysis and type(processor).__name__ == 'PressCounter':
+                    # Slow down the movement for better visualization.
+                    sleep(0.0)
+                    processor.draw_inner_area(frame)
 
             # Exit if ESC pressed
             k = cv.waitKey(1) & 0xff
             if k == 27:
                 break
 
-        line_alarm.calculate_alarms()
-        press_counter.calculate_press_down_positions()
-        for plates_counter in plates_counter_list:
-            plates_counter.calculate_plates()
+        for processor in processors:
+            processor.calculate_positions()
 
         if analysis:
-            peaks = press_counter.peaks
-            plt.plot(press_counter.y_pos_history)
-            plt.plot(peaks, press_counter.y_pos_history[peaks], 'X');
-            plt.savefig('press')
-            plt.figure()
+            for idx, processor in enumerate(processors):
+                if type(processor).__name__ == 'PressCounter':
+                    peaks = processor.peaks
+                    plt.plot(processor.y_pos_history)
+                    plt.plot(peaks, processor.y_pos_history[peaks], 'X');
+                    plt.savefig('press')
+                    plt.figure()
 
-            for idx, plates_counter in enumerate(plates_counter_list):
-                peaks = plates_counter.peaks
-                plt.plot(plates_counter.light_history)
-                plt.plot(peaks, plates_counter.light_history[peaks], 'X')
-                plt.savefig('plates{:d}'.format(idx))
-                plt.figure()
+                if type(processor).__name__ == 'PlatesCounter':
+                    peaks = processor.peaks
+                    plt.plot(processor.light_history)
+                    plt.plot(peaks, processor.light_history[peaks], 'X')
+                    plt.savefig('plates{:d}'.format(idx))
+                    plt.figure()
 
             cv.destroyAllWindows()
 

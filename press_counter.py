@@ -1,8 +1,9 @@
 import cv2 as cv
 import numpy as np
 from utils import normalize, find_peaks, extract_area
+from section_processor import SectionProcessor
 
-class PressCounter:
+class PressCounter(SectionProcessor):
     """
     A class to count press moves from a video frames of a
     manufacturing machine.
@@ -87,7 +88,7 @@ class PressCounter:
         tracker_type : str
             Name of one of the built-in trackers in OpenCV.
         """
-
+        SectionProcessor.__init__(self)
         # Top-left corner of the main area.
         self.x_start = int(x_center - half_width)
         self.y_start = int(y_center - half_height)
@@ -133,7 +134,7 @@ class PressCounter:
             if tracker_type == "CSRT":
                 self.tracker = cv.TrackerCSRT_create()
 
-    def init_tracker(self, frame):
+    def init(self, frame):
         """
         Initializes the tracker. The object to be tracked is defined by the
         content of the inner area in the frame
@@ -164,7 +165,6 @@ class PressCounter:
         frame : ndarray
             3-channel image.
         """
-
         if self.y_pos_history is None:
             raise ValueError('Tracker is not initialized')
 
@@ -178,12 +178,19 @@ class PressCounter:
             # Vertical position of the tracking object in the current frame.
             self.y_pos_history = np.hstack((self.y_pos_history, int(self.bbox[1])))
 
-    def calculate_press_down_positions(self):
+    def calculate_positions(self):
         """
         Calculates the frames where the inner area is in the bottom position.
         The result is set to the peaks attribute.
         """
+        self.__calculate_press_down_positions()
 
+    def __calculate_press_down_positions(self):
+        """
+        Calculates the frames where the inner area is in the bottom position.
+        The result is set to the peaks attribute.
+        Method just for easy reading.
+        """
         if self.y_pos_history is None:
             raise ValueError('Tracker is not initialized')
 
@@ -195,6 +202,7 @@ class PressCounter:
         # Find the peaks of the sine-shape curve.
         self.peaks = find_peaks(self.y_pos_history, 0.5)
 
+
     def draw_inner_area(self, frame):
         """
         Draws the inner area (bounding box of the tracking object).
@@ -204,7 +212,6 @@ class PressCounter:
         frame : ndarray
             3-channel image where the inner area will be drawn.
         """
-
         main_area = extract_area(frame, self.x_start, self.y_start,
             self.x_end - self.x_start, self.y_end - self.y_start)
         x, y = int(self.bbox[0]), int(self.bbox[1])

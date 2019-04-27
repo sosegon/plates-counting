@@ -72,7 +72,7 @@ if __name__ == '__main__':
     line_alarm = LineAlarm(np.array([p0, p1, p2, p3]), np.array([x, y, w, h]))
 
     start = time()
-    counter.analyse(press_counter, [plates_counter_1, plates_counter_2], line_alarm, analysis)
+    counter.analyse([press_counter, plates_counter_1, plates_counter_2, line_alarm], analysis)
     end = time()
     print("Time to process: {:d}s".format(int(end - start)))
 
