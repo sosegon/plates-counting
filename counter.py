@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from time import sleep, time
 from press_counter import PressCounter
 from plates_counter import PlatesCounter
+from line_alarm import LineAlarm
 
 class Counter:
     """
@@ -36,7 +37,7 @@ class Counter:
         self.filename = filename
 
 
-    def analyse(self, press_counter, plates_counter_list, analysis=False):
+    def analyse(self, press_counter, plates_counter_list, line_alarm, analysis=False):
         """
         Analyses the video to count the number of press moves.
 
@@ -52,6 +53,7 @@ class Counter:
 
         # Set init frame
         ok, frame = cap.read()
+        line_alarm.init(frame)
         press_counter.init_tracker(frame)
         for plates_counter in plates_counter_list:
             plates_counter.init(frame)
@@ -67,6 +69,7 @@ class Counter:
             if not ok:
                 break
 
+            line_alarm.process_frame(frame)
             press_counter.process_frame(frame)
             for plates_counter in plates_counter_list:
                 plates_counter.process_frame(frame)
@@ -81,6 +84,7 @@ class Counter:
             if k == 27:
                 break
 
+        line_alarm.calculate_alarms()
         press_counter.calculate_press_down_positions()
         for plates_counter in plates_counter_list:
             plates_counter.calculate_plates()
@@ -103,7 +107,7 @@ class Counter:
 
         cap.release()
 
-    def draw_press_counter(self, outname, frames_press, frames_plate_list):
+    def draw_press_counter(self, outname, frames_press, frames_plate_list, alarms):
         """
         Creates a video with text of the press moves.
 
@@ -145,6 +149,8 @@ class Counter:
         for frames_plate in frames_plate_list:
             plate_counts.append(0)
 
+        alarms_reached = [False, False, False, False]
+
         font = cv.FONT_HERSHEY_SIMPLEX
 
         while(1):
@@ -181,6 +187,21 @@ class Counter:
                     font,
                     0.5,
                     (255, 255, 0),
+                    2,
+                    cv.LINE_AA)
+
+            for idx, flag in enumerate(alarms_reached):
+                if not flag and alarms[idx] == frame_counter:
+                    alarms_reached[idx] = True
+
+            for idx, alarm in enumerate(alarms):
+                cv.putText(
+                    frame,
+                    'Alarm {}: {}'.format(idx, alarms_reached[idx]),
+                    (40, 150 + 30 * idx),
+                    font,
+                    0.5,
+                    (255, 0, 255),
                     2,
                     cv.LINE_AA)
 
@@ -247,8 +268,15 @@ def main():
     plates_counter_1 = PlatesCounter(xp1, yp1, wp1, hp2)
     plates_counter_2 = PlatesCounter(xp2, yp2, wp2, hp2)
 
+    p0 = [200, 296]
+    p1 = [249, 295]
+    p2 = [245, 474]
+    p3 = [344, 465]
+    x, y, w, h = 150, 100, 30, 180
+    line_alarm = LineAlarm(np.array([p0, p1, p2, p3]), np.array([x, y, w, h]))
+
     start = time()
-    counter.analyse(press_counter, [plates_counter_1, plates_counter_2], analysis)
+    counter.analyse(press_counter, [plates_counter_1, plates_counter_2], line_alarm, analysis)
     end = time()
     print("Time to process: {:d}s".format(int(end - start)))
 
@@ -256,7 +284,7 @@ def main():
         # Draw text to coun the press moves in the video
         start = time()
         counter.draw_press_counter(outname, press_counter.peaks,
-            [plates_counter_1.peaks, plates_counter_2.peaks])
+            [plates_counter_1.peaks, plates_counter_2.peaks], line_alarm.alarms)
         end = time()
         print("Time to create output video: {:d}s".format(int(end - start)))
 
