@@ -3,9 +3,73 @@ import numpy as np
 from utils import extract_area
 
 class LineAlarm:
+    """
+    A class to find the points where the plates in bands reach marks
 
+    The points are found by thresholding the lightness in bands, finding
+    the limit of the threshold in every frame, and comparing those values
+    against the positions of the marks.
+
+    To achieve the previous process, every frame is transformed using
+    homographies. This transformation allows to remove the perspective and
+    displaye the bands from a top-view.
+
+    ...
+
+    Attributes
+    ----------
+    src_points : ndarray
+        Positions of the marks in unwarped frames.
+    dst_points : ndarray
+        Positions of the marks in warped frames.
+    upper_left_rectangle : ((int, int), (int, int))
+        Points that define the first section of the left band, from start to
+        first mark.
+    upper_right_rectangle : ((int, int), (int, int))
+        Points that define the first section of the right band, from start to
+        first mark.
+    lower_left_rectangle : ((int, int), (int, int))
+        Points that define the second section of the left band, from first mark
+        to second mark.
+    lower_right_rectangle : ((int, int), (int, int))
+        Points that define the second section of the right band, from first mark
+        to second mark.
+    h : ndarray
+        Transformation matrix to warp images and get rid of perspective.
+    history_left : ndarray
+        Limit of the threshold in the left in every frame.
+    history_right : ndarray
+        Limit of the threshold in the right every frame.
+    offset : int
+        Value to add to marks' positions. This allows to find the positions
+        where the alarms has to be triggered.
+    alarms : array
+        Positions where the alarms for every mark in every band have to be
+        triggered.
+
+    Methods
+    -------
+    init(src_points, dst_dims)
+        Calculates the transformation matrix, and start the history arrays.
+    process_frame(frame)
+        Processes a frame to add the threshold limit positions to the histories.
+    warp(frame)
+        Warp a frame using the transformation matrix.
+    draw_rects(warpFrame)
+        Draws the sections defined by the marks in a warped frame.
+    calculate_alarms()
+        Calculates the frames where the alarms have to be triggered.
+    """
     def __init__(self, src_points, dst_dims):
-
+        """
+        Parameters
+        ----------
+        src_points : ndarray
+            Positions of the marks in unwarped frames.
+        dst_dims : ndarray
+            Starting point and dimensions of the destination rectangle that
+            would be used to do the homography.
+        """
         x, y, w, h = dst_dims
         q0 = [x    , y]
         q1 = [x + w, y]
@@ -37,6 +101,15 @@ class LineAlarm:
         self.alarms = []
 
     def init(self, frame):
+        """
+        Calculates the transformation matrix, and start the history arrays.
+
+        Parameters
+        ----------
+        frame : ndarray
+            3-channel image.
+        """
+
         # Calculate the transformation Matrix
         self.h, status = cv.findHomography(self.src_points, self.dst_points)
 
@@ -45,6 +118,18 @@ class LineAlarm:
         self.history_left, self.history_right = np.array(l), np.array(r)
 
     def process_frame(self, frame):
+        """
+        Processes a frame to add the threshold limit positions to the histories.
+
+        Parameters
+        ----------
+        frame : ndarray
+            3-channel image.
+
+        Returns
+        -------
+        ndarray : 1-channel warped image.
+        """
         if self.h is None:
             raise ValueError('Homography matrix is not initialized')
 
@@ -58,9 +143,29 @@ class LineAlarm:
         return i
 
     def warp(self, frame):
+        """
+        Warp a frame using the transformation matrix.
+
+        Parameters
+        ----------
+        frame : ndarray
+            3-channel image.
+
+        Returns
+        -------
+        ndarray : 3-channel warped image.
+        """
         return cv.warpPerspective(frame, self.h, (frame.shape[1], frame.shape[0]))
 
     def draw_rects(self, warpFrame):
+        """
+        Draws the sections defined by the marks in a warped frame.
+
+        Parameters
+        ----------
+        warpFrame : ndarray
+            3-channel warped image.
+        """
         cv.rectangle(warpFrame, self.upper_left_rect[0], self.upper_left_rect[1], (255, 0, 0), 1, 1)
         cv.rectangle(warpFrame, self.upper_right_rect[0], self.upper_right_rect[1], (255, 0, 0), 1, 1)
         cv.rectangle(warpFrame, self.lower_left_rect[0], self.lower_left_rect[1], (0, 0, 255), 1, 1)
@@ -69,6 +174,9 @@ class LineAlarm:
         return warpFrame
 
     def calculate_alarms(self):
+        """
+        Calculates the frames where the alarms have to be triggered.
+        """
 
         upper_left = np.argwhere(self.history_left >= self.upper_left_rect[1][1] - self.offset).ravel()
         upper_right = np.argwhere(self.history_right >= self.upper_right_rect[1][1] - self.offset).ravel()
@@ -83,6 +191,20 @@ class LineAlarm:
         self.alarms = [upper_left, upper_right, lower_left, lower_right]
 
     def __process_frame(self, frame):
+        """
+        Process a frame to apply thresholding and add the limits to the history
+        elements
+
+        Parameters
+        ----------
+        frame : ndarray
+            3-channel image.
+
+        Returns
+        -------
+        (ndarray, int, int) : Thresheld warped image for visualization, limit of
+        the left threshold, limit of the right threshold.
+        """
         # Frame in zenital view
         warp = self.warp(frame)
 
@@ -173,6 +295,18 @@ class LineAlarm:
         return gr_image.T, max_left, max_right
 
     def __def_limit(self, indices):
+        """
+        Define the index of the position where an alarm has to be triggered.
+
+        Parameters
+        ----------
+        indices : ndarray
+            Indices of the frames where the mark was passed by the threshold
+
+        Returns
+        -------
+            int : Unique index of first frame where plates reached the mark.
+        """
         if indices.shape[0] > 0:
             return indices[0]
         else:
