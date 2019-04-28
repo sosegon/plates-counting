@@ -16,6 +16,8 @@ class Counter:
     ----------
     filename : str
         Name of the video file to be processed.
+    processors : list of SectionProcessor
+            Objects that process different section of frames.
 
     Methods
     -------
@@ -31,6 +33,8 @@ class Counter:
         ----------
         filename : str
             Name of the video file to be processed.
+        processors : list of SectionProcessor
+            Objects that process different section of frames.
         """
         self.filename = filename
         self.processors = processors
@@ -41,8 +45,6 @@ class Counter:
 
         Parameters
         ----------
-        processors : list of SectionProcessor
-            Objects that process different section of frames.
         analysis : bool
             Flag used for analysis during development.
         """
@@ -104,11 +106,6 @@ class Counter:
     def generate_report(self):
         """
         Generates report for every SectionProcessor.
-
-        Parameters
-        ----------
-        processors : list of SectionProcessor.
-            Objects that processed different section of frames.
         """
         simple_name = get_file_simple_name(self.filename)
         time_date = time_and_date()
@@ -118,14 +115,12 @@ class Counter:
 
     def draw_press_counter(self, outname):
         """
-        Creates a video with text of the press moves.
+        Creates a video with text for every processor.
 
         Parameters
         ----------
         outname : str
             Name of the video file to be created.
-        frames_press : ndarray
-            Indices of the frames where the press is in the bottom position.
         """
         cap = cv.VideoCapture(self.filename)
 

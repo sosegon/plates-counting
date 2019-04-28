@@ -187,6 +187,22 @@ class LineAlarm(SectionProcessor):
         np.savetxt('alarms_{}.csv'.format(sub_name), records.T, delimiter=',', fmt='%s')
 
     def draw_caption(self, value, frame, font, position=(0, 0), color=(0, 0, 255)):
+       """
+        Draws the alarms in a frame.
+
+        Parameters
+        ----------
+        value : list of bool
+            The status of the alarms
+        frame : ndarray
+            3-channel image.
+        font : int
+            Font type available in OpenCV.
+        position : (int, int)
+            Position in the frame to start drawing the caption.
+        color : (int, int, int)
+            BGR color of the caption.
+        """
         if type(value) is list:
             for idx, val in enumerate(value):
                 text = '{}'.format(val)
