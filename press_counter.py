@@ -203,6 +203,17 @@ class PressCounter(SectionProcessor):
         self.peaks = find_peaks(self.y_pos_history, 0.5)
 
     def generate_report(self, fps, sub_name):
+        """
+        Generates a report with the timestaps of the press moves.
+        The report is written to a file named press_$sub_name$.csv
+
+        Parameters
+        ----------
+        fps : float
+            Number of frames per second of the processed video.
+        sub_name : str
+            Partial name of the file report.
+        """
         timestamps = np.copy(self.peaks) / fps
         func = np.vectorize(readable_time)
         np.savetxt('press_{}.csv'.format(sub_name), func(timestamps), delimiter=',', fmt='%s')

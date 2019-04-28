@@ -102,7 +102,14 @@ class Counter:
         cap.release()
 
     def generate_report(self, processors):
+        """
+        Generates report for every SectionProcessor.
 
+        Parameters
+        ----------
+        processors : list of SectionProcessor.
+            Objects that processed different section of frames.
+        """
         simple_name = get_file_simple_name(self.filename)
         time_date = time_and_date()
 
@@ -204,6 +211,14 @@ class Counter:
         cap.release()
 
     def __calculate_fps(self, capture):
+        """
+        Calculates and sets the frames per second of a video.
+
+        Parameters
+        ----------
+        capture : VideoCapture
+            Video capture.
+        """
         # FPS in the input video.
         (major_ver, minor_ver, subminor_ver) = (cv.__version__).split('.')
         if int(major_ver)  < 3 :

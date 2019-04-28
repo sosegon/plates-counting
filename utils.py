@@ -71,12 +71,43 @@ def normalize(points, min_, max_):
     return points - min_ / (max_ - min_)
 
 def readable_time(seconds):
+    """
+    Converts time in seconds to human-readable format.
+
+    Parameters
+    ----------
+    seconds : float
+        Time to convert.
+
+    Returns
+    -------
+    str : Time in HH:MM:SS format.
+    """
     return time.strftime('%H:%M:%S', time.gmtime(seconds))
 
 def time_and_date():
+    """
+    Gets the current time in human-readable format.
+
+    Returns
+    -------
+    str : Time in YYYY_MM_DD_HH_MM format.
+    """
     return time.strftime('%Y_%m_%d_%H_%M')
 
 def get_file_simple_name(file_name):
+    """
+    Gets the simple name of a file. It removes the path part.
+
+    Parameters
+    ----------
+    file_name : str
+        Path to the file
+
+    Returns
+    -------
+    str : Simple name of the file.
+    """
     if 'Linux' in platform.system():
         if file_name.endswith('/'):
             return file_name.split('/')[-2]

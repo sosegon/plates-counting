@@ -169,6 +169,17 @@ class LineAlarm(SectionProcessor):
         self.alarms = np.array([upper_left, upper_right, lower_left, lower_right])
 
     def generate_report(self, fps, sub_name):
+        """
+        Generates a report with the timestaps of the triggered alarms.
+        The report is written to a file named alarms_$sub_name$.csv
+
+        Parameters
+        ----------
+        fps : float
+            Number of frames per second of the processed video.
+        sub_name : str
+            Partial name of the file report.
+        """
         timestamps = np.copy(self.alarms) / fps
         func = np.vectorize(readable_time)
         records = func(timestamps)
