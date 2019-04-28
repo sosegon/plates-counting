@@ -1,6 +1,6 @@
 import cv2 as cv
 import numpy as np
-from utils import normalize, find_peaks, extract_area
+from utils import normalize, find_peaks, extract_area, readable_time
 from section_processor import SectionProcessor
 
 class PressCounter(SectionProcessor):
@@ -202,6 +202,10 @@ class PressCounter(SectionProcessor):
         # Find the peaks of the sine-shape curve.
         self.peaks = find_peaks(self.y_pos_history, 0.5)
 
+    def generate_report(self, fps, sub_name):
+        timestamps = np.copy(self.peaks) / fps
+        func = np.vectorize(readable_time)
+        np.savetxt('press_{}.csv'.format(sub_name), func(timestamps), delimiter=',', fmt='%s')
 
     def draw_inner_area(self, frame):
         """

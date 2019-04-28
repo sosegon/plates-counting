@@ -1,6 +1,6 @@
 import cv2 as cv
 import numpy as np
-from utils import extract_area
+from utils import extract_area, readable_time
 from section_processor import SectionProcessor
 
 class LineAlarm(SectionProcessor):
@@ -100,7 +100,7 @@ class LineAlarm(SectionProcessor):
         self.offset = 3
 
         # Points (frame indices) where the alarms are triggered
-        self.alarms = []
+        self.alarms = np.array([])
 
     def init(self, frame):
         """
@@ -166,7 +166,14 @@ class LineAlarm(SectionProcessor):
         lower_left = self.__def_limit(lower_left)
         lower_right = self.__def_limit(lower_right)
 
-        self.alarms = [upper_left, upper_right, lower_left, lower_right]
+        self.alarms = np.array([upper_left, upper_right, lower_left, lower_right])
+
+    def generate_report(self, fps, sub_name):
+        timestamps = np.copy(self.alarms) / fps
+        func = np.vectorize(readable_time)
+        records = func(timestamps)
+        records = np.vstack((records, ['upper_left', 'upper_right', 'lower_left', 'lower_right']))
+        np.savetxt('alarms_{}.csv'.format(sub_name), records.T, delimiter=',', fmt='%s')
 
     def warp(self, frame):
         """

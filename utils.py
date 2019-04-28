@@ -1,5 +1,7 @@
 import numpy as np
 from scipy.signal import find_peaks as fp
+import time
+import platform
 
 def extract_area(frame, x, y, width, height):
     """
@@ -50,7 +52,7 @@ def find_peaks(points, threshold=0.5):
     return peaks[valid_peaks.ravel()]
 
 def normalize(points, min_, max_):
-    """`
+    """
     Normalizes the points of a signal.
 
     Parameters
@@ -67,3 +69,22 @@ def normalize(points, min_, max_):
     ndarray : 1-D array of normalized points.
     """
     return points - min_ / (max_ - min_)
+
+def readable_time(seconds):
+    return time.strftime('%H:%M:%S', time.gmtime(seconds))
+
+def time_and_date():
+    return time.strftime('%Y_%m_%d_%H_%M')
+
+def get_file_simple_name(file_name):
+    if 'Linux' in platform.system():
+        if file_name.endswith('/'):
+            return file_name.split('/')[-2]
+        else:
+            return file_name.split('/')[-1]
+
+    elif 'Windows' in platform.system():
+        if file_name.endswith('\\'):
+            return file_name.split('\\')[-2]
+        else:
+            return file_name.split('\\')[-1]

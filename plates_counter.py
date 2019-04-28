@@ -1,6 +1,6 @@
 import cv2 as cv
 import numpy as np
-from utils import extract_area, find_peaks, normalize
+from utils import extract_area, find_peaks, normalize, readable_time
 from section_processor import SectionProcessor
 
 class PlatesCounter(SectionProcessor):
@@ -118,3 +118,8 @@ class PlatesCounter(SectionProcessor):
         # The limits for lightness in HLS are 0 and 255 by default
         self.light_history = normalize(self.light_history, 0, 255)
         self.peaks = find_peaks(self.light_history)
+
+    def generate_report(self, fps, sub_name):
+        timestamps = np.copy(self.peaks) / fps
+        func = np.vectorize(readable_time)
+        np.savetxt('plates_{}.csv'.format(sub_name), func(timestamps), delimiter=',', fmt='%s')

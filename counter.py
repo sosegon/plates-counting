@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from press_counter import PressCounter
 from plates_counter import PlatesCounter
 from line_alarm import LineAlarm
+from utils import get_file_simple_name, time_and_date
 
 class Counter:
     """
@@ -47,6 +48,7 @@ class Counter:
         """
 
         cap = cv.VideoCapture(self.filename)
+        self.__calculate_fps(cap)
 
         # Set init frame
         ok, frame = cap.read()
@@ -99,6 +101,14 @@ class Counter:
 
         cap.release()
 
+    def generate_report(self, processors):
+
+        simple_name = get_file_simple_name(self.filename)
+        time_date = time_and_date()
+
+        for idx, processor in enumerate(processors):
+            processor.generate_report(self.fps, '{}_{}{}'.format(idx, time_date, simple_name))
+
     def draw_press_counter(self, outname, frames_press, frames_plate_list, alarms):
         """
         Creates a video with text of the press moves.
@@ -110,27 +120,17 @@ class Counter:
         frames_press : ndarray
             Indices of the frames where the press is in the bottom position.
         """
-
         cap = cv.VideoCapture(self.filename)
 
         # Dimensions of the input video.
         frame_width = int(cap.get(3))
         frame_height = int(cap.get(4))
 
-        # FPS in the input video.
-        (major_ver, minor_ver, subminor_ver) = (cv.__version__).split('.')
-        if int(major_ver)  < 3 :
-            fps = cap.get(cv.cv.CV_CAP_PROP_FPS)
-            print("Frames per second using video.get(cv2.cv.CV_CAP_PROP_FPS): {0}".format(fps))
-        else :
-            fps = cap.get(cv.CAP_PROP_FPS)
-            print("Frames per second using video.get(cv2.CAP_PROP_FPS) : {0}".format(fps))
-
         # Output video.
         out = cv.VideoWriter(
             outname,
             cv.VideoWriter_fourcc('H','2','6','4'),
-            fps,
+            self.fps,
             (frame_width, frame_height))
 
         # Counters to define the positions in the video for press moves.
@@ -202,3 +202,13 @@ class Counter:
 
         out.release()
         cap.release()
+
+    def __calculate_fps(self, capture):
+        # FPS in the input video.
+        (major_ver, minor_ver, subminor_ver) = (cv.__version__).split('.')
+        if int(major_ver)  < 3 :
+            self.fps = capture.get(cv.cv.CV_CAP_PROP_FPS)
+            print("Frames per second using video.get(cv2.cv.CV_CAP_PROP_FPS): {0}".format(self.fps))
+        else :
+            self.fps = capture.get(cv.CAP_PROP_FPS)
+            print("Frames per second using video.get(cv2.CAP_PROP_FPS) : {0}".format(self.fps))

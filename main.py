@@ -56,7 +56,6 @@ if __name__ == '__main__':
     tracker_type = args.tracker_type
     analysis = args.analysis
 
-    counter = Counter(filename)
     press_counter = PressCounter(xc, hw, yc, hh, yb, bw, bh, tracker_type)
 
     xp1, yp1, wp1, hp1 = 137, 198, 48, 15
@@ -71,10 +70,16 @@ if __name__ == '__main__':
     x, y, w, h = 150, 100, 30, 180
     line_alarm = LineAlarm(np.array([p0, p1, p2, p3]), np.array([x, y, w, h]))
 
+    processors = [press_counter, plates_counter_1, plates_counter_2, line_alarm]
+
+    counter = Counter(filename)
+
     start = time()
-    counter.analyse([press_counter, plates_counter_1, plates_counter_2, line_alarm], analysis)
+    counter.analyse(processors, analysis)
     end = time()
     print("Time to process: {:d}s".format(int(end - start)))
+
+    counter.generate_report(processors)
 
     if outname is not None:
         # Draw text to coun the press moves in the video
