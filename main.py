@@ -72,19 +72,18 @@ if __name__ == '__main__':
 
     processors = [press_counter, plates_counter_1, plates_counter_2, line_alarm]
 
-    counter = Counter(filename)
+    counter = Counter(filename, processors)
 
     start = time()
-    counter.analyse(processors, analysis)
+    counter.analyse(analysis)
     end = time()
     print("Time to process: {:d}s".format(int(end - start)))
 
-    counter.generate_report(processors)
+    counter.generate_report()
 
     if outname is not None:
         # Draw text to coun the press moves in the video
         start = time()
-        counter.draw_press_counter(outname, press_counter.peaks,
-            [plates_counter_1.peaks, plates_counter_2.peaks], line_alarm.alarms)
+        counter.draw_press_counter(outname)
         end = time()
         print("Time to create output video: {:d}s".format(int(end - start)))

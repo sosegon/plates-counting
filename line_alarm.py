@@ -186,6 +186,17 @@ class LineAlarm(SectionProcessor):
         records = np.vstack((records, ['upper_left', 'upper_right', 'lower_left', 'lower_right']))
         np.savetxt('alarms_{}.csv'.format(sub_name), records.T, delimiter=',', fmt='%s')
 
+    def draw_caption(self, value, frame, font, position=(0, 0), color=(0, 0, 255)):
+        if type(value) is list:
+            for idx, val in enumerate(value):
+                text = '{}'.format(val)
+                pos = (self.src_points[idx][0], self.src_points[idx][1])
+                if val:
+                    color = (0, 0, 255)
+                else:
+                    color = (0, 255, 0)
+                super().draw_text(text, frame, font, color, pos)
+
     def warp(self, frame):
         """
         Warp a frame using the transformation matrix.

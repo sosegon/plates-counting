@@ -218,6 +218,10 @@ class PressCounter(SectionProcessor):
         func = np.vectorize(readable_time)
         np.savetxt('press_{}.csv'.format(sub_name), func(timestamps), delimiter=',', fmt='%s')
 
+    def draw_caption(self, value, frame, font, position=(0, 0), color=(0, 0, 255)):
+        text = 'Press: {}'.format(value)
+        super().draw_text(text, frame, font, color, (self.x_start, self.y_start))
+
     def draw_inner_area(self, frame):
         """
         Draws the inner area (bounding box of the tracking object).

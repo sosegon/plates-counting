@@ -135,3 +135,7 @@ class PlatesCounter(SectionProcessor):
         timestamps = np.copy(self.peaks) / fps
         func = np.vectorize(readable_time)
         np.savetxt('plates_{}.csv'.format(sub_name), func(timestamps), delimiter=',', fmt='%s')
+
+    def draw_caption(self, value, frame, font, position=(0, 0), color=(0, 0, 255)):
+        text = 'Plates: {}'.format(value)
+        super().draw_text(text, frame, font, color, (self.x_start, self.y_start))
