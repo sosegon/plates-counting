@@ -400,3 +400,16 @@ class LineAlarm(SectionProcessor):
             return indices[0]
         else:
             return None
+
+    def show_processing(self, frame, name="Alarms"):
+        """
+        Displays the thresholding processing of the bands.
+
+        Parameters
+        ----------
+        frame : ndarray
+            3-channel image.
+        name : str
+            Name of the window to display the frame.
+        """
+        cv.imshow(name, self.__process_frame(frame)[0])

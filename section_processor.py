@@ -158,3 +158,16 @@ class SectionProcessor:
             BGR color of the information.
         """
         pass
+
+    def show_processing(self, frame, name="Processing"):
+        """
+        Displays the frame being processed.
+
+        Parameters
+        ----------
+        frame : ndarray
+            3-channel image.
+        name : str
+            Name of the window to display the frame.
+        """
+        pass

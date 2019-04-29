@@ -183,3 +183,27 @@ class PlatesCounter(SectionProcessor):
         valid_frames = self.peaks[self.peaks <= frame_number]
 
         self.draw_caption(valid_frames.shape[0], frame, font, position, color)
+
+    def show_processing(self, frame, name="Plates"):
+         """
+        Displays the lightness of the shoot.
+
+        Parameters
+        ----------
+        frame : ndarray
+            3-channel image.
+        name : str
+            Name of the window to display the frame.
+        """
+        shoot = extract_area(frame, self.x_start, self.y_start,
+            self.width, self.height)
+
+        H = shoot.shape[0]
+        W = shoot.shape[1]
+
+        shoot = cv.cvtColor(shoot, cv.COLOR_BGR2HLS)
+
+        # Resize for better visualization
+        shoot = cv.resize(shoot, (W * 3, H * 3))
+
+        cv.imshow(name, shoot[:,:,1])

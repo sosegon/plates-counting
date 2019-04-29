@@ -55,12 +55,7 @@ class Counter:
 
         # Set init frame
         ok, frame = cap.read()
-        for processor in self.processors:
-            processor.init(frame)
-
-            if analysis and type(processor).__name__ == 'PressCounter':
-                processor.draw_inner_area(frame)
-                sleep(0.0)
+        self.__process_frame(frame, analysis, True)
 
         while(1):
             ok, frame = cap.read()
@@ -68,13 +63,7 @@ class Counter:
             if not ok:
                 break
 
-            for processor in self.processors:
-                processor.process_frame(frame)
-
-                if analysis and type(processor).__name__ == 'PressCounter':
-                    # Slow down the movement for better visualization.
-                    sleep(0.0)
-                    processor.draw_inner_area(frame)
+            self.__process_frame(frame, analysis)
 
             # Exit if ESC pressed
             k = cv.waitKey(1) & 0xff
@@ -103,6 +92,18 @@ class Counter:
             cv.destroyAllWindows()
 
         cap.release()
+
+    def __process_frame(self, frame, analysis=False, init=False):
+        for idx, processor in enumerate(self.processors):
+            if init:
+                processor.init(frame)
+            else:
+                processor.process_frame(frame)
+
+            if analysis:
+                # Slow down the movement for better visualization.
+                sleep(0.0)
+                processor.show_processing(frame, "Processor {}".format(idx))
 
     def generate_report(self):
         """

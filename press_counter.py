@@ -267,14 +267,16 @@ class PressCounter(SectionProcessor):
 
         self.draw_caption(valid_frames.shape[0], frame, font, position, color)
 
-    def draw_inner_area(self, frame):
+    def show_processing(self, frame, name="Press"):
         """
-        Draws the inner area (bounding box of the tracking object).
+        Displays the inner area (bounding box of the tracking object).
 
         Parameters
         ----------
         frame : ndarray
-            3-channel image where the inner area will be drawn.
+            3-channel image.
+        name : str
+            Name of the window to display the frame.
         """
         main_area = extract_area(frame, self.x_start, self.y_start,
             self.x_end - self.x_start, self.y_end - self.y_start)
@@ -290,4 +292,4 @@ class PressCounter(SectionProcessor):
         # Resize for better visualization
         main_area = cv.resize(main_area, (W * 3, H * 3))
 
-        cv.imshow("Tracking", main_area)
+        cv.imshow(name, main_area)
