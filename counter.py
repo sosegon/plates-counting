@@ -4,6 +4,7 @@ from press_counter import PressCounter
 from plates_counter import PlatesCounter
 from line_alarm import LineAlarm
 from utils import get_file_simple_name, time_and_date
+from time import sleep
 
 class Counter:
     """
