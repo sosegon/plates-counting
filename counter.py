@@ -135,23 +135,7 @@ class Counter:
             self.fps,
             (frame_width, frame_height))
 
-        # Frame indices for captions
-        frames_press = [p.peaks for p in self.processors if type(p) is PressCounter][0]
-        frames_plate_list = [p.peaks for p in self.processors if type(p) is PlatesCounter]
-        alarms = [p.alarms for p in self.processors if type(p) is LineAlarm][0]
-
-        # Counters to define the positions in the video for press moves.
         frame_counter = 0
-        press_moves = 0
-
-        # Counter for every PlatesCounter processor
-        plate_counts = []
-        for frames_plate in frames_plate_list:
-            plate_counts.append(0)
-
-        # Initially, no alarm has been triggered
-        alarms_reached = [False, False, False, False]
-
         font = cv.FONT_HERSHEY_SIMPLEX
 
         while(1):
@@ -160,37 +144,9 @@ class Counter:
             if not ok:
                 break
 
-            # Calculate the number of press moves for the current frame
-            if len(frames_press) > 0 and frame_counter == frames_press[0]:
-                press_moves = press_moves + 1
-                frames_press = frames_press[1:]
-
-            # Calculate the number of plates for the current frame
-            for idx, frames_plate in enumerate(frames_plate_list):
-                if len(frames_plate) > 0 and frame_counter == frames_plate[0]:
-                    plate_counts[idx] = plate_counts[idx] + 1
-                    frames_plate_list[idx] = frames_plate[1:]
-
-            # Set the alarms for the current frame
-            for idx, flag in enumerate(alarms_reached):
-                if not flag and alarms[idx] == frame_counter:
-                    alarms_reached[idx] = True
-
-            # Identify the PlatesCounter objects
-            platesCounter_counter = 0
             # Draw the captions
             for processor in self.processors:
-                processor_type = type(processor)
-
-                if processor_type is PressCounter:
-                    processor.draw_caption(press_moves, frame, font)
-
-                elif processor_type is PlatesCounter:
-                    processor.draw_caption(plate_counts[platesCounter_counter], frame, font)
-                    platesCounter_counter = platesCounter_counter + 1
-
-                elif processor_type is LineAlarm:
-                    processor.draw_caption(alarms_reached, frame, font)
+                processor.draw_processing_info(frame_counter, frame, font)
 
             out.write(frame)
             frame_counter = frame_counter + 1

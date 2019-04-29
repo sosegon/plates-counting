@@ -246,6 +246,27 @@ class PressCounter(SectionProcessor):
         text = 'Press: {}'.format(value)
         super().draw_text(text, frame, font, color, (self.x_start, self.y_start))
 
+    def draw_processing_info(self, frame_number, frame, font, position=(0, 0), color=(0, 0, 255)):
+        """
+        Draws the number of press moves in a frame.
+
+        Parameters
+        ----------
+        frame_number : int
+            Value to compare to internal information of processor.
+        frame : ndarray
+            3-channel image.
+        font : int
+            Font type available in OpenCV.
+        position : (int, int)
+            Position in the frame to start drawing the information.
+        color : (int, int, int)
+            BGR color of the information.
+        """
+        valid_frames = self.peaks[self.peaks <= frame_number]
+
+        self.draw_caption(valid_frames.shape[0], frame, font, position, color)
+
     def draw_inner_area(self, frame):
         """
         Draws the inner area (bounding box of the tracking object).

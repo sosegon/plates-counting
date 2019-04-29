@@ -162,3 +162,24 @@ class PlatesCounter(SectionProcessor):
         """
         text = 'Plates: {}'.format(value)
         super().draw_text(text, frame, font, color, (self.x_start, self.y_start))
+
+    def draw_processing_info(self, frame_number, frame, font, position=(0, 0), color=(0, 0, 255)):
+        """
+        Draws the number of plates in a frame.
+
+        Parameters
+        ----------
+        frame_number : int
+            Value to compare to internal information of processor.
+        frame : ndarray
+            3-channel image.
+        font : int
+            Font type available in OpenCV.
+        position : (int, int)
+            Position in the frame to start drawing the number of plates.
+        color : (int, int, int)
+            BGR color of the number of plates.
+        """
+        valid_frames = self.peaks[self.peaks <= frame_number]
+
+        self.draw_caption(valid_frames.shape[0], frame, font, position, color)
