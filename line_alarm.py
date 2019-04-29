@@ -1,5 +1,6 @@
 import cv2 as cv
 import numpy as np
+import matplotlib.pyplot as plt
 from utils import extract_area, readable_time
 from section_processor import SectionProcessor
 
@@ -413,3 +414,37 @@ class LineAlarm(SectionProcessor):
             Name of the window to display the frame.
         """
         cv.imshow(name, self.__process_frame(frame)[0])
+
+    def plot(self, name="Alarms"):
+        """
+        Plots the position of the plates in the band. The 'X's correspond to
+        the positions of the alarms.
+
+        Parameters
+        ----------
+        name : str
+            Name of the plot.
+        """
+        left_alarms = []
+        right_alarms = []
+
+        for idx, alarm in enumerate(self.alarms):
+            if idx % 2 == 0:
+                if alarm is not None:
+                    left_alarms.append(alarm)
+            else:
+                if alarm is not None:
+                    right_alarms.append(alarm)
+
+        left_alarms = np.array(left_alarms)
+        plt.plot(self.history_left)
+        if left_alarms.shape[0] > 0:
+            plt.plot(left_alarms, self.history_left[left_alarms], 'X')
+
+        right_alarms = np.array(right_alarms)
+        plt.plot(self.history_right)
+        if right_alarms.shape[0] > 0:
+            plt.plot(right_alarms, self.history_right[right_alarms], 'X')
+
+        plt.savefig(name)
+        plt.figure()

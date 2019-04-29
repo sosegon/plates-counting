@@ -171,3 +171,14 @@ class SectionProcessor:
             Name of the window to display the frame.
         """
         pass
+
+    def plot(self, name="Plot"):
+        """
+        Plots information of the processing done.
+
+        Parameters
+        ----------
+        name : str
+            Name of the plot.
+        """
+        pass

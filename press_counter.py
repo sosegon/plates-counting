@@ -1,5 +1,6 @@
 import cv2 as cv
 import numpy as np
+import matplotlib.pyplot as plt
 from utils import normalize, find_peaks, extract_area, readable_time
 from section_processor import SectionProcessor
 
@@ -293,3 +294,18 @@ class PressCounter(SectionProcessor):
         main_area = cv.resize(main_area, (W * 3, H * 3))
 
         cv.imshow(name, main_area)
+
+    def plot(self, name="Press"):
+        """
+        Plots the positions of the press in every frame. The 'X's correspond to
+        the press in the bottom position.
+
+        Parameters
+        ----------
+        name : str
+            Name of the plot.
+        """
+        plt.plot(self.y_pos_history)
+        plt.plot(self.peaks, self.y_pos_history[self.peaks], 'X')
+        plt.savefig(name)
+        plt.figure()

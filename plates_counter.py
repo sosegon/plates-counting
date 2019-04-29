@@ -1,5 +1,6 @@
 import cv2 as cv
 import numpy as np
+import matplotlib.pyplot as plt
 from utils import extract_area, find_peaks, normalize, readable_time
 from section_processor import SectionProcessor
 
@@ -185,7 +186,7 @@ class PlatesCounter(SectionProcessor):
         self.draw_caption(valid_frames.shape[0], frame, font, position, color)
 
     def show_processing(self, frame, name="Plates"):
-         """
+        """
         Displays the lightness of the shoot.
 
         Parameters
@@ -207,3 +208,18 @@ class PlatesCounter(SectionProcessor):
         shoot = cv.resize(shoot, (W * 3, H * 3))
 
         cv.imshow(name, shoot[:,:,1])
+
+    def plot(self, name="Plates"):
+        """
+        Plots the lightness of the shoot in every frame. The 'X's correspond to
+        plates.
+
+        Parameters
+        ----------
+        name : str
+            Name of the plot.
+        """
+        plt.plot(self.light_history)
+        plt.plot(self.peaks, self.light_history[self.peaks], 'X')
+        plt.savefig(name)
+        plt.figure()

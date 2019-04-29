@@ -70,24 +70,9 @@ class Counter:
             if k == 27:
                 break
 
-        for processor in self.processors:
+        for idx, processor in enumerate(self.processors):
             processor.calculate_positions()
-
-        if analysis:
-            for idx, processor in enumerate(self.processors):
-                if type(processor).__name__ == 'PressCounter':
-                    peaks = processor.peaks
-                    plt.plot(processor.y_pos_history)
-                    plt.plot(peaks, processor.y_pos_history[peaks], 'X');
-                    plt.savefig('press')
-                    plt.figure()
-
-                if type(processor).__name__ == 'PlatesCounter':
-                    peaks = processor.peaks
-                    plt.plot(processor.light_history)
-                    plt.plot(peaks, processor.light_history[peaks], 'X')
-                    plt.savefig('plates{:d}'.format(idx))
-                    plt.figure()
+            processor.plot("{}_{}_{}".format(type(processor).__name__ ,idx, time_and_date()))
 
             cv.destroyAllWindows()
 
