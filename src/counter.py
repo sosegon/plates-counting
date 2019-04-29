@@ -71,8 +71,9 @@ class Counter:
                 break
 
         for idx, processor in enumerate(self.processors):
+            simple_name = get_file_simple_name(self.filename)
             processor.calculate_positions()
-            processor.plot("{}_{}_{}".format(type(processor).__name__ ,idx, time_and_date()))
+            processor.plot("{}_{}_{}_{}.png".format(type(processor).__name__ ,idx, time_and_date(), simple_name))
 
             cv.destroyAllWindows()
 
@@ -110,7 +111,7 @@ class Counter:
         time_date = time_and_date()
 
         for idx, processor in enumerate(self.processors):
-            processor.generate_report(self.fps, '{}_{}{}'.format(idx, time_date, simple_name))
+            processor.generate_report(self.fps, '{}_{}_{}'.format(idx, time_date, simple_name))
 
     def draw_press_counter(self, outname):
         """
