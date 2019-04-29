@@ -187,7 +187,7 @@ class LineAlarm(SectionProcessor):
         np.savetxt('alarms_{}.csv'.format(sub_name), records.T, delimiter=',', fmt='%s')
 
     def draw_caption(self, value, frame, font, position=(0, 0), color=(0, 0, 255)):
-       """
+        """
         Draws the alarms in a frame.
 
         Parameters
