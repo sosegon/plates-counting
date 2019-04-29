@@ -79,6 +79,18 @@ class Counter:
         cap.release()
 
     def __process_frame(self, frame, analysis=False, init=False):
+        """
+        Calls each processor to do its job.
+
+        Parameters
+        ----------
+        frame : ndarray
+            3-channel image.
+        analysis : bool
+            Flag to display the processing done in each frame.
+        init : bool
+            Flag to initialize each processor.
+        """
         for idx, processor in enumerate(self.processors):
             if init:
                 processor.init(frame)
