@@ -1,3 +1,4 @@
+import argparse
 import numpy as np
 from scipy.signal import find_peaks as fp
 import time
@@ -119,3 +120,23 @@ def get_file_simple_name(file_name):
             return file_name.split('\\')[-2]
         else:
             return file_name.split('\\')[-1]
+
+def string_to_bool(value):
+    """
+    Converts a string to an the equivalent bool value.
+
+    Parameters
+    ----------
+    value : str
+        Value to convert.
+
+    Returns
+    -------
+        bool : Equivalent bool value.
+    """
+    if value.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Boolean value expected.')

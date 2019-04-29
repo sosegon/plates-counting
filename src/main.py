@@ -5,14 +5,12 @@ from counter import Counter
 from press_counter import PressCounter
 from plates_counter import PlatesCounter
 from line_alarm import LineAlarm
-from utils import readable_time
+from utils import readable_time, string_to_bool
 
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='plates')
     parser.add_argument('filename', type=str, help='Input video filename')
-    parser.add_argument('-o', dest='outname', type=str,
-        help='Name of the output video file.')
 
     # Options for the press.
     parser.add_argument('-pxc', dest='press_x_center', type=int, default=188,
@@ -102,7 +100,10 @@ if __name__ == '__main__':
         help='Height of destination box.')
 
     # Extra options
-    parser.add_argument('-a', dest='analysis', type=bool, default=False,
+    parser.add_argument('-o', dest='outname', type=str,
+        help='Name of the output video file.')
+
+    parser.add_argument('-a', dest='analysis', type=string_to_bool, default='0',
         help='Flag used for analysis.')
 
     args = parser.parse_args()
