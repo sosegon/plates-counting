@@ -24,6 +24,7 @@ In the command line, go to the src file of this repository, and type the followi
 	<img src='./doc_img/sections_reference.png'>
 	<figcaption><b>Image 1. </b>Reference sections of the machine in the frames.</figcaption>
 </figure>
+<br/>
 
 The program has several parameters to set. The options have default values set based on **Image 1**. The parameters are the following:
 
@@ -41,14 +42,14 @@ The program has several parameters to set. The options have default values set b
 
   - **Parameters for the shoots:**
 
-    - **`sx1`** Horizontal position of top corner of left shoot. Default value is `137`.
-    - **`sy1`** Vertical position of top corner of left shoot. Default value is `198`.
-    - **`sw1`** Width of left shoot. Default value is `48`.
-    - **`sh1`** Height of left shoot. Default value is `15`.
-	- **`sx2`** Horizontal position of top corner of right shoot. Default value is `216`.
-    - **`sy2`** Vertical position of top corner of right shoot. Default value is `198`.
-    - **`sw2`** Width of right shoot. Default value is `42`.
-    - **`sh2`** Height of right shoot. Default value is `15`.
+    - **`-sx1`** Horizontal position of top corner of left shoot. Default value is `137`.
+    - **`-sy1`** Vertical position of top corner of left shoot. Default value is `198`.
+    - **`-sw1`** Width of left shoot. Default value is `48`.
+    - **`-sh1`** Height of left shoot. Default value is `15`.
+	- **`-sx2`** Horizontal position of top corner of right shoot. Default value is `216`.
+    - **`-sy2`** Vertical position of top corner of right shoot. Default value is `198`.
+    - **`-sw2`** Width of right shoot. Default value is `42`.
+    - **`-sh2`** Height of right shoot. Default value is `15`.
 
   - **Parameters for the bands:**
 
