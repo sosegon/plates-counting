@@ -68,7 +68,7 @@ def normalize(points, min_, max_):
     -------
     ndarray : 1-D array of normalized points.
     """
-    return points - min_ / (max_ - min_)
+    return (points - min_) / (max_ - min_)
 
 def readable_time(seconds):
     """
