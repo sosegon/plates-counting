@@ -16,94 +16,94 @@ if __name__ == '__main__':
 
     # Options for the press.
     parser.add_argument('-pxc', dest='press_x_center', type=int, default=188,
-        help='Horizontal position of the center of the main area.')
+        help='Horizontal position of the center of the main area of the press.')
 
     parser.add_argument('-phw', dest='press_half_width', type=int, default=40,
-        help='Half the width of the main area.')
+        help='Half width of the main area of the press.')
 
     parser.add_argument('-pyc', dest='press_y_center', type=int, default=118,
-        help='Vertical position of the center of the main area.')
+        help='Vertical position of the center of the main area of the press.')
 
     parser.add_argument('-phh', dest='press_half_height', type=int, default=24,
-        help='Half the height of the main area.')
+        help='Half height of the main area of the press.')
 
     parser.add_argument('-pyb', dest='press_y_bar_start', type=int, default=8,
-        help='Vertical position of the inner area. This value is relative to the main area.')
+        help='Vertical position of the inner area of the press. This value is relative to the main area.')
 
     parser.add_argument('-pbw', dest='press_half_bar_width', type=int, default=17,
-        help='Half the width of the inner area.')
+        help='Half width of the inner area of the press.')
 
     parser.add_argument('-pbh', dest='press_half_bar_height', type=int, default=12,
-        help='Half the height of the inner area.')
+        help='Half height of the inner area of the press.')
 
     parser.add_argument('-ptt', dest='press_tracker_type', type=str, default='BOOSTING',
         help='Name of one of the built-in trackers in OpenCV.')
 
     # Options for the shoots.
     parser.add_argument('-sx1', dest='shoot_x_1', type=int, default=137,
-        help='Horizontal position of top corner of left shoot')
+        help='Horizontal position of top corner of left shoot.')
 
     parser.add_argument('-sy1', dest='shoot_y_1', type=int, default=198,
-        help='Vertical position of top corner of left shoot')
+        help='Vertical position of top corner of left shoot.')
 
     parser.add_argument('-sw1', dest='shoot_w_1', type=int, default=48,
-        help='Width of left shoot')
+        help='Width of left shoot.')
 
     parser.add_argument('-sh1', dest='shoot_h_1', type=int, default=15,
-        help='Height of left shoot')
+        help='Height of left shoot.')
 
     parser.add_argument('-sx2', dest='shoot_x_2', type=int, default=216,
-        help='Horizontal position of top corner of right shoot')
+        help='Horizontal position of top corner of right shoot.')
 
     parser.add_argument('-sy2', dest='shoot_y_2', type=int, default=198,
-        help='Vertical position of top corner of right shoot')
+        help='Vertical position of top corner of right shoot.')
 
     parser.add_argument('-sw2', dest='shoot_w_2', type=int, default=42,
-        help='Width of right shoot')
+        help='Width of right shoot.')
 
     parser.add_argument('-sh2', dest='shoot_h_2', type=int, default=15,
-        help='Height of right shoot')
+        help='Height of right shoot.')
 
     #Options for the bands.
     parser.add_argument('-bx1', dest='upper_left_x', type=int, default=200,
-        help='Horizontal position of upper mark in left band')
+        help='Horizontal position of upper mark in left band.')
 
     parser.add_argument('-by1', dest='upper_left_y', type=int, default=296,
-        help='Vertical position of upper mark in left band')
+        help='Vertical position of upper mark in left band.')
 
     parser.add_argument('-bx2', dest='upper_right_x', type=int, default=249,
-        help='Horizontal position of upper mark in right band')
+        help='Horizontal position of upper mark in right band.')
 
     parser.add_argument('-by2', dest='upper_right_y', type=int, default=295,
-        help='Vertical position of upper mark in right band')
+        help='Vertical position of upper mark in right band.')
 
     parser.add_argument('-bx3', dest='lower_left_x', type=int, default=245,
-        help='Horizontal position of lower mark in left band')
+        help='Horizontal position of lower mark in left band.')
 
     parser.add_argument('-by3', dest='lower_left_y', type=int, default=474,
-        help='Vertical position of lower mark in left band')
+        help='Vertical position of lower mark in left band.')
 
     parser.add_argument('-bx4', dest='lower_right_x', type=int, default=344,
-        help='Horizontal position of lower mark in right band')
+        help='Horizontal position of lower mark in right band.')
 
     parser.add_argument('-by4', dest='lower_right_y', type=int, default=465,
-        help='Vertical position of lower mark in right band')
+        help='Vertical position of lower mark in right band.')
 
     parser.add_argument('-bxd', dest='box_x', type=int, default=150,
-        help='Horizontal position of upper left corner of destination box')
+        help='Horizontal position of upper left corner of destination box.')
 
     parser.add_argument('-byd', dest='box_y', type=int, default=100,
-        help='Vertical position of upper left corner of destination box')
+        help='Vertical position of upper left corner of destination box.')
 
     parser.add_argument('-bwd', dest='box_w', type=int, default=30,
-        help='Width of destination box')
+        help='Width of destination box.')
 
     parser.add_argument('-bhd', dest='box_h', type=int, default=180,
-        help='Height of destination box')
+        help='Height of destination box.')
 
     # Extra options
     parser.add_argument('-a', dest='analysis', type=bool, default=False,
-        help='Flag used for analysis during development.')
+        help='Flag used for analysis.')
 
     args = parser.parse_args()
 
