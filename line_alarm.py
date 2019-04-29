@@ -180,9 +180,17 @@ class LineAlarm(SectionProcessor):
         sub_name : str
             Partial name of the file report.
         """
-        timestamps = np.copy(self.alarms) / fps
+        out_alarms = np.copy(self.alarms)
+        out_alarms[out_alarms == None] = -1
+
+        timestamps = out_alarms / fps
         func = np.vectorize(readable_time)
         records = func(timestamps)
+
+        for idx, t in enumerate(timestamps):
+            if t < 0:
+                records[idx] = 'No time'
+
         records = np.vstack((records, ['upper_left', 'upper_right', 'lower_left', 'lower_right']))
         np.savetxt('alarms_{}.csv'.format(sub_name), records.T, delimiter=',', fmt='%s')
 

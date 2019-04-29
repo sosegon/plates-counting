@@ -133,8 +133,15 @@ class PlatesCounter(SectionProcessor):
             Partial name of the file report.
         """
         timestamps = np.copy(self.peaks) / fps
-        func = np.vectorize(readable_time)
-        np.savetxt('plates_{}.csv'.format(sub_name), func(timestamps), delimiter=',', fmt='%s')
+        file_name = 'plates_{}.csv'.format(sub_name)
+
+        if timestamps.shape[0] > 0:
+            func = np.vectorize(readable_time)
+            array_to_dump = func(timestamps)
+        else:
+            array_to_dump = np.array(['No plates'])
+
+        np.savetxt(file_name, array_to_dump, delimiter=',', fmt='%s')
 
     def draw_caption(self, value, frame, font, position=(0, 0), color=(0, 0, 255)):
         """
