@@ -2,6 +2,7 @@ import argparse
 import numpy as np
 from scipy.signal import find_peaks as fp
 import time
+import datetime
 import platform
 
 def extract_area(frame, x, y, width, height):
@@ -85,6 +86,29 @@ def readable_time(seconds):
     str : Time in HH:MM:SS format.
     """
     return time.strftime('%H:%M:%S', time.gmtime(seconds))
+
+def unreadable_time(str_time):
+    """
+    Converts time from human-readable format to seconds.
+
+    Parameters
+    ----------
+    str_time : str
+        Time in HH:MM:SS format.
+
+    Returns
+    -------
+    float : Time in seconds. The value is -1 if str_time does not have the
+            expected format.
+    """
+    try:
+        x = time.strptime(str_time,'%H:%M:%S')
+        return datetime.timedelta(
+            hours=x.tm_hour,
+            minutes=x.tm_min,
+            seconds=x.tm_sec).total_seconds()
+    except ValueError:
+        return -1
 
 def time_and_date():
     """

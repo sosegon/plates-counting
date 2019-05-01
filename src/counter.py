@@ -18,17 +18,27 @@ class Counter:
     filename : str
         Name of the video file to be processed.
     processors : list of SectionProcessor
-            Objects that process different section of frames.
+        Objects that process different section of frames.
+    time_range : (float, float)
+        Time in seconds for the section of the video to be processed.
+    fps : float
+        Frames per second of the video.
+    start_frame : int
+        Initial point to process the video. Calculated from time_range.
+    end_frame : int
+        End point to process the video. Calculated from time_range.
 
     Methods
     -------
     analyse(press_counter)
         Analyses the video to count the number of press moves.
+    generate_report()
+        Generates report for every SectionProcessor.
     draw_press_counter(self, outname, frame_numbers)
         Creates a video with text of the press moves.
     """
 
-    def __init__(self, filename, processors):
+    def __init__(self, filename, processors, time_range):
         """
         Parameters
         ----------
@@ -36,9 +46,15 @@ class Counter:
             Name of the video file to be processed.
         processors : list of SectionProcessor
             Objects that process different section of frames.
+        time_range : (int, int)
+            Time in seconds for the section of the video to be processed.
         """
         self.filename = filename
         self.processors = processors
+        self.time_range = time_range
+        self.fps = 0
+        self.start_frame = -1
+        self.end_frame = -1
 
     def analyse(self, analysis=False):
         """
@@ -53,17 +69,32 @@ class Counter:
         cap = cv.VideoCapture(self.filename)
         self.__calculate_fps(cap)
 
+        self.__calculate_start_end_frames(cap)
+        frame_counter = 0
+
+        # Skip frames until reaching the start_frame
+        while(frame_counter < self.start_frame):
+            ok, frame = cap.read()
+
+            if not ok:
+                break
+
+            frame_counter = frame_counter + 1
+
         # Set init frame
         ok, frame = cap.read()
         self.__process_frame(frame, analysis, True)
+        frame_counter = frame_counter + 1
 
-        while(1):
+        # Process frames until reaching the end_frame
+        while(frame_counter <= self.end_frame):
             ok, frame = cap.read()
 
             if not ok:
                 break
 
             self.__process_frame(frame, analysis)
+            frame_counter = frame_counter + 1
 
             # Exit if ESC pressed
             k = cv.waitKey(1) & 0xff
@@ -135,10 +166,21 @@ class Counter:
             self.fps,
             (frame_width, frame_height))
 
-        frame_counter = 0
         font = cv.FONT_HERSHEY_SIMPLEX
+        frame_counter = 0
 
-        while(1):
+        # Skip frames until reaching the start_frame
+        while(frame_counter < self.start_frame):
+            ok, frame = cap.read()
+
+            if not ok:
+                break
+
+            frame_counter = frame_counter + 1
+
+        frame_counter_processor = 0
+        # Process frames until reaching the end_frame
+        while(frame_counter <= self.end_frame):
             ok, frame = cap.read()
 
             if not ok:
@@ -146,10 +188,11 @@ class Counter:
 
             # Draw the captions
             for processor in self.processors:
-                processor.draw_processing_info(frame_counter, frame, font)
+                processor.draw_processing_info(frame_counter_processor, frame, font)
 
             out.write(frame)
             frame_counter = frame_counter + 1
+            frame_counter_processor = frame_counter_processor + 1
 
         out.release()
         cap.release()
@@ -171,3 +214,34 @@ class Counter:
         else :
             self.fps = capture.get(cv.CAP_PROP_FPS)
             print("Frames per second using video.get(cv2.CAP_PROP_FPS) : {0}".format(self.fps))
+
+    def __calculate_start_end_frames(self, capture):
+        """
+        Calculates and sets that start and end frame of a video to be processed.
+
+        Parameters
+        ----------
+        capture : VideoCapture
+            Video capture.
+        """
+        if self.fps <= 0:
+            self.__calculate_fps(capture)
+
+        (major_ver, minor_ver, subminor_ver) = (cv.__version__).split('.')
+        if int(major_ver)  < 3 :
+            total_frames = capture.get(cv.cv.CV_CAP_PROP_FRAME_COUNT)
+        else :
+            total_frames = capture.get(cv.CAP_PROP_FRAME_COUNT)
+
+        start_seconds, end_seconds = self.time_range
+
+        self.start_frame = 0
+        self.end_frame = total_frames - 1
+
+        total_seconds = self.end_frame / self.fps
+
+        if end_seconds > start_seconds and end_seconds < total_seconds:
+            self.end_frame = int(end_seconds * self.fps)
+            self.start_frame = max(0, int(start_seconds * self.fps))
+        elif end_seconds > start_seconds and start_seconds < total_seconds:
+            self.start_frame = max(0, int(start_seconds * self.fps))

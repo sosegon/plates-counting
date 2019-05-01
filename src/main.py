@@ -5,7 +5,7 @@ from counter import Counter
 from press_counter import PressCounter
 from plates_counter import PlatesCounter
 from line_alarm import LineAlarm
-from utils import readable_time, string_to_bool
+from utils import readable_time, string_to_bool, unreadable_time
 
 if __name__ == '__main__':
 
@@ -106,6 +106,12 @@ if __name__ == '__main__':
     parser.add_argument('-a', dest='analysis', type=string_to_bool, default='0',
         help='Flag used for analysis.')
 
+    parser.add_argument('-from', dest='from_', type=unreadable_time, default='00:00:00',
+        help="Start point to process the video.")
+
+    parser.add_argument('-to', dest='to_', type=unreadable_time, default='end',
+        help="End point to process the video.")
+
     args = parser.parse_args()
 
     filename = args.filename
@@ -143,9 +149,11 @@ if __name__ == '__main__':
 
     # Counter
     analysis = args.analysis
+    start_time = args.from_
+    end_time = args.to_
     processors = [press_counter, plates_counter_1, plates_counter_2, line_alarm]
 
-    counter = Counter(filename, processors)
+    counter = Counter(filename, processors, (start_time, end_time))
 
     start = time()
     counter.analyse(analysis)
