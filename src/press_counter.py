@@ -320,7 +320,7 @@ class PressCounter(SectionProcessor):
         plt.figure()
 
     def calculate_events(self, fps, last_frame):
-         """
+        """
         Calculate the points (frame indices) where the press changes its state.
         The press is either ON or OFF. The press is ON as long as it is moving,
         which is determined by analysing the peaks (down positions). Basically,
