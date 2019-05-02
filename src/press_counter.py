@@ -113,6 +113,8 @@ class PressCounter(SectionProcessor):
         # Indices of the frames where the inner area is in the bottom position.
         self.peaks = None
 
+        self.events = None
+
          # Tracker
         (major_ver, minor_ver, subminor_ver) = (cv.__version__).split('.')
         if int(minor_ver) < 3:
@@ -297,8 +299,9 @@ class PressCounter(SectionProcessor):
 
     def plot(self, name="Press"):
         """
-        Plots the positions of the press in every frame. The 'X's correspond to
-        the press in the bottom position.
+        Plots the positions of the press in every frame. The blue 'X's
+        correspond to the press in the bottom position. Green 'X's correspond
+        to the press in ON state. Red 'X's correspond to the press in OFF state.
 
         Parameters
         ----------
@@ -306,6 +309,97 @@ class PressCounter(SectionProcessor):
             Name of the plot.
         """
         plt.plot(self.y_pos_history)
-        plt.plot(self.peaks, self.y_pos_history[self.peaks], 'X')
+        plt.plot(self.peaks, self.y_pos_history[self.peaks], 'X', color='blue')
+
+        true_events = self.events[self.events[:, 1] == 1]
+        false_events = self.events[self.events[:, 1] == 0]
+        plt.plot(true_events[:, 0], self.y_pos_history[true_events[:, 0]], 'X', color='green')
+        plt.plot(false_events[:, 0], self.y_pos_history[false_events[:, 0]], 'X', color='red')
+
         plt.savefig(name)
         plt.figure()
+
+    def calculate_events(self, fps, last_frame):
+         """
+        Calculate the points (frame indices) where the press changes its state.
+        The press is either ON or OFF. The press is ON as long as it is moving,
+        which is determined by analysing the peaks (down positions). Basically,
+        if the distance between peaks is less than 2 seconds, the press is
+        moving.
+
+        Parameters
+        ----------
+        fps : float
+            Frames per second of the processed video.
+        last_frame : int
+            Index of the last frame in the processed video
+        """
+
+        if self.peaks is None:
+            raise ValueError('Peaks not calculated')
+
+        self.events = np.array([[-1, -1]])
+
+        # No peaks, no processing
+        if self.peaks.shape[0] == 0:
+            return
+
+        threshold_seconds = 3
+        prev_frame = 0
+
+        # Define the first event at frame 0
+        diff = self.peaks[0] - prev_frame
+
+        # The first event is either ON or OFF. It is ON if the time between
+        # frame 0 and the first peak is least than 3 seconds.
+        if diff < threshold_seconds * fps:
+            self.events = np.vstack((self.events, [prev_frame, 1]))
+        else:
+            self.events = np.vstack((self.events, [prev_frame, 0]))
+
+        # Remove the initial event, which was just for compatibility
+        self.events = self.events[1:, :]
+
+        # Iterate only if there are more than one peak
+        if self.peaks.shape[0] > 1:
+            prev_frame = self.peaks[0]
+
+            # Iterate over the rest of peaks
+            for frame in self.peaks[1:]:
+
+                diff = frame - prev_frame
+                prev_event = self.events[-1, 1]
+
+                if diff < threshold_seconds * fps:
+                    if prev_event == 1:
+                        prev_frame = frame
+                        continue
+                    else:
+                        self.events = np.vstack((self.events, [prev_frame, 1]))
+                else:
+                    if prev_event == 0:
+                        prev_frame = frame
+                        continue
+                    else:
+                        self.events = np.vstack((self.events, [prev_frame, 0]))
+
+                prev_frame = frame
+
+
+            # Check the last peak
+            diff = last_frame - self.peaks[-1]
+            prev_event = self.events[-1, 1]
+
+            if diff < threshold_seconds * fps:
+                if prev_event == 1:
+                    pass
+                else:
+                    self.events = np.vstack((self.events, [self.peaks[-1], 1]))
+            else:
+                if prev_event == 0:
+                    pass
+                else:
+                    self.events = np.vstack((self.events, [self.peaks[-1], 0]))
+
+        self.events = np.vstack((self.events, [last_frame, self.events[-1, 1]]))
+        self.events = self.events.astype(int)

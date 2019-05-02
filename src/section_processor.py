@@ -182,3 +182,16 @@ class SectionProcessor:
             Name of the plot.
         """
         pass
+
+    def calculate_events(self, fps, last_frame):
+        """
+        Calculate important events in the processed video.
+
+        Parameters
+        ----------
+        fps : float
+            Frames per second of the processed video.
+        last_frame : int
+            Index of the last frame in the processed video
+        """
+        pass

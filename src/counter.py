@@ -104,6 +104,7 @@ class Counter:
         for idx, processor in enumerate(self.processors):
             simple_name = get_file_simple_name(self.filename)
             processor.calculate_positions()
+            processor.calculate_events(self.fps, self.end_frame - self.start_frame)
             processor.plot("{}_{}_{}_{}.png".format(type(processor).__name__ ,idx, time_and_date(), simple_name))
 
             cv.destroyAllWindows()
