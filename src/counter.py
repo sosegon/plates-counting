@@ -86,6 +86,7 @@ class Counter:
         self.__process_frame(frame, analysis, True)
         frame_counter = frame_counter + 1
 
+        interrupted = False
         # Process frames until reaching the end_frame
         while(frame_counter <= self.end_frame):
             ok, frame = cap.read()
@@ -99,12 +100,17 @@ class Counter:
             # Exit if ESC pressed
             k = cv.waitKey(1) & 0xff
             if k == 27:
+                interrupted = True
                 break
 
         for idx, processor in enumerate(self.processors):
             simple_name = get_file_simple_name(self.filename)
             processor.calculate_positions()
-            processor.calculate_events(self.fps, self.end_frame - self.start_frame)
+            if not interrupted:
+                last_frame = self.end_frame - self.start_frame
+            else:
+                last_frame = frame_counter - self.start_frame - 1
+            processor.calculate_events(self.fps, last_frame)
             processor.plot("{}_{}_{}_{}.png".format(type(processor).__name__ ,idx, time_and_date(), simple_name))
 
             cv.destroyAllWindows()
