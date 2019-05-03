@@ -94,8 +94,8 @@ class LineAlarm(SectionProcessor):
 
         # Arrays to keep an history of the movement of the plates along the
         # bands
-        self.history_left = None
-        self.history_right = None
+        self.history_left = np.array([])
+        self.history_right = np.array([])
 
         # Factor to avoid None types due to the limit of the image
         self.offset = 3
@@ -118,7 +118,8 @@ class LineAlarm(SectionProcessor):
 
         # Processed image and movement points
         i, l, r = self.__process_frame(frame)
-        self.history_left, self.history_right = np.array(l), np.array(r)
+        self.history_left = np.hstack((self.history_left, l))
+        self.history_right = np.hstack((self.history_right, r))
 
     def process_frame(self, frame):
         """
@@ -150,7 +151,25 @@ class LineAlarm(SectionProcessor):
         """
         Calculates the frames where the alarms have to be triggered.
         """
+        self.__remove_none()
         self.__calculate_alarms()
+
+    def __remove_none(self):
+        """
+        Removes None items in histories. None items were added when processing
+        each frame.
+        """
+        left_none = np.argwhere(self.history_left == None).ravel()
+        if left_none.shape[0] > 0:
+            last = left_none[-1]
+            first = self.history_left[last + 1]
+            self.history_left[left_none] = first
+
+        right_none = np.argwhere(self.history_right == None).ravel()
+        if right_none.shape[0] > 0:
+            last = right_none[-1]
+            first = self.history_right[last + 1]
+            self.history_right[right_none] = first
 
     def __calculate_alarms(self):
         """
@@ -282,7 +301,8 @@ class LineAlarm(SectionProcessor):
     def __process_frame(self, frame):
         """
         Process a frame to apply thresholding and add the limits to the history
-        elements
+        elements. A limit is valid as long as the white section reaches de end
+        of the band.
 
         Parameters
         ----------
@@ -338,21 +358,55 @@ class LineAlarm(SectionProcessor):
             # Valid pixels as white
             binary[bools == True] = 1
 
-            # Dilate and erode for better analysis
-            kernel1 = np.ones((5,5), np.uint8)
-            binary = cv.dilate(binary, kernel1, iterations=1)
-            kernel2 = np.ones((3,3), np.uint8)
-            binary = cv.erode(binary, kernel2, iterations=1)
+            # Find the  white pixels
+            whites = np.argwhere(binary == 1)
 
-            # First white pixel
-            max_ = int(np.argmax(binary==1) / binary.shape[1])
-            if idx == 0:
-                max_left = max_
-            elif idx == 1:
-                max_right = max_
+            left_nones = []
+            right_nones = []
 
-            # White out pixels below first white pixel
-            binary[max_:,:] = 1
+            if whites.shape[0] > 0:
+                # fill all space between first and last white pixel
+                rows = whites[:, 0]
+                rows = np.unique(rows)
+                low = rows[0]
+                high = rows[-1] + 1
+                binary[low:high, :] = 1
+
+                # Find the first white pixel
+                # If the box of whites extends to the end of the band, add the
+                # first white pixel
+                if boi.shape[0] - high < self.offset:
+                    if idx == 0:
+                        max_left = low
+
+                    elif idx == 1:
+                        max_right = low
+                # If the box of whites does not extend to the end of the band
+                else:
+                    if idx == 0 and self.history_left.shape[0] > 0:
+                        max_left = self.history_left[-1]
+
+                    elif idx == 0 and self.history_left.shape[0] == 0:
+                        max_left = None
+
+                    if idx == 1 and self.history_right.shape[0] > 0:
+                        max_right = self.history_right[-1]
+
+                    elif idx == 1 and self.history_right.shape[0] == 0:
+                        max_right = None
+            else:
+                if idx == 0 and self.history_left.shape[0] > 0:
+                    max_left = self.history_left[-1]
+
+                elif idx == 0 and self.history_left.shape[0] == 0:
+                    max_left = None
+
+                if idx == 1 and self.history_right.shape[0] > 0:
+                    max_right = self.history_right[-1]
+
+                elif idx == 1 and self.history_right.shape[0] == 0:
+                    max_right = None
+
             th.append(binary)
 
             # Grayscale image
