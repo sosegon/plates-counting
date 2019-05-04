@@ -103,6 +103,9 @@ class LineAlarm(SectionProcessor):
         # Points (frame indices) where the alarms are triggered
         self.alarms = np.array([])
 
+        # Points (frame indices) where marks change state
+        self.events = []
+
     def init(self, frame):
         """
         Calculates the transformation matrix, and start the history arrays.
@@ -243,7 +246,7 @@ class LineAlarm(SectionProcessor):
 
     def draw_processing_info(self, frame_number, frame, font, position=(0, 0), color=(0, 0, 255)):
         """
-        Draws the alarms in a frame.
+        Draws the state of the alarms in a frame.
 
         Parameters
         ----------
@@ -258,14 +261,15 @@ class LineAlarm(SectionProcessor):
         color : (int, int, int)
             BGR color of the information.
         """
-        reached_alarms = []
-        for alarm in self.alarms:
-            if alarm is None:
-                reached_alarms.append(False)
+        marks_state = []
+        for ev in self.events:
+            state = ev[ev[:, 0] <= frame_number]
+            if state.shape[0] > 0:
+                marks_state.append(False if state[-1, 1] == 0 else True)
             else:
-                reached_alarms.append(alarm < frame_number)
+                marks_state.append(False) #unreachable statement
 
-        self.draw_caption(reached_alarms, frame, font, position, color)
+        self.draw_caption(marks_state, frame, font, position, color)
 
     def warp(self, frame):
         """
@@ -479,26 +483,112 @@ class LineAlarm(SectionProcessor):
         name : str
             Name of the plot.
         """
-        left_alarms = []
-        right_alarms = []
-
-        for idx, alarm in enumerate(self.alarms):
-            if idx % 2 == 0:
-                if alarm is not None:
-                    left_alarms.append(alarm)
-            else:
-                if alarm is not None:
-                    right_alarms.append(alarm)
-
-        left_alarms = np.array(left_alarms)
         plt.plot(self.history_left)
-        if left_alarms.shape[0] > 0:
-            plt.plot(left_alarms, self.history_left[left_alarms], 'X')
-
-        right_alarms = np.array(right_alarms)
         plt.plot(self.history_right)
-        if right_alarms.shape[0] > 0:
-            plt.plot(right_alarms, self.history_right[right_alarms], 'X')
 
+        for idx, ev in enumerate(self.events):
+            if idx % 2 == 0:
+                plt.plot(ev[:, 0], self.history_left[ev[:, 0]], 'X')
+            else:
+                plt.plot(ev[:, 0], self.history_right[ev[:, 0]], 'X')
         plt.savefig(name)
         plt.figure()
+
+    def calculate_events(self, fps, last_frame):
+        """
+        Calculate the points (frame indices) where the marks change their
+        states. A mark is either True or False. A mark is False as long as it is
+        not reached by the line of plates, otherwise is True.
+
+        Parameters
+        ----------
+        fps : float
+            Frames per second of the processed video.
+        last_frame : int
+            Index of the last frame in the processed video
+        """
+        limits = [self.upper_left_rect[1][1] - self.offset,
+        self.upper_right_rect[1][1] - self.offset,
+        self.lower_left_rect[1][1] - self.offset,
+        self.lower_right_rect[1][1] - self.offset]
+
+        for idx, limit in enumerate(limits):
+            if idx % 2 == 0:
+                state = self.__state_function(self.history_left, limit, fps)
+                self.events.append(self.__changes(state, last_frame))
+            else:
+                state = self.__state_function(self.history_right, limit, fps)
+                self.events.append(self.__changes(state, last_frame))
+
+    def __state_function(self, sequence, limit, fps):
+        """
+        Creates a signal with values either 0 or 1. The sections try to be as
+        long as possible to avoid quick changes in state.
+
+        Parameters
+        ----------
+        sequence : ndarray
+            List of raw points for the function
+        limit : int
+            Value which define the condition to create the 0 and 1 values.
+        fps : float
+            Frames per second of the processed video.
+
+        Returns
+        -------
+        ndarray : Signal with values 0 or 1.
+        """
+        bools = sequence > limit
+        bools = bools.astype(int)
+        plt.plot(bools)
+
+        ones_index = np.argwhere(bools == 1).ravel()
+
+        diff = np.diff(ones_index)
+
+        for idx, d in enumerate(diff):
+            if d > 1 and d < 2 * fps:
+                one_index = ones_index[idx]
+                bools[one_index:one_index + d] = 1
+
+        return bools
+
+    def __changes(self, state_list, last_frame):
+        """
+        Calculates and sets changes in the state of a signal.
+
+        Parameters
+        ----------
+        state_list : ndarray
+            Signal of states.
+        last_frame : int
+            Index of the last frame of the processed video
+
+        Returns
+        -------
+        ndarray : Indices of the frames where the state changes, and the values
+        of change.
+        """
+        diff =  np.diff(state_list)
+
+        passed = np.argwhere(diff > 0).ravel()
+        passed_state = np.ones(passed.shape[0])
+
+        unpassed = np.argwhere(diff < 0).ravel()
+        unpassed_state = np.zeros(unpassed.shape[0])
+
+        indices = np.hstack((passed, unpassed))
+        states = np.hstack((passed_state, unpassed_state))
+        total = np.vstack((indices, states)).T
+
+        if total.shape[0] > 0:
+            total = total[total[:, 0].argsort()]
+
+            first = 1 if total[0][1] == 0 else 0
+            last = total[-1][1]
+
+            total = np.vstack(([0, first], total, [last_frame, last]))
+        else:
+            total = np.array([[0, state_list[0]],[last_frame, state_list[0]]])
+
+        return total.astype(int)
