@@ -28,6 +28,8 @@ class PlatesCounter(SectionProcessor):
         Array of average lightness of the shoot area for every frame.
     peaks : ndarray
         Array of positions for peaks of the average lightness.
+    events : ndarray
+        Positions where the state changes.
 
     Methods
     -------
@@ -35,8 +37,22 @@ class PlatesCounter(SectionProcessor):
         Initializes the average lightness array.
     process_frame(frame)
         Processes a frame to add its average lightness to history.
-    calculate_plates()
+    calculate_position()
         Calculates the frames where the average lightness is high.
+    generate_report(fps, sub_name)
+        Generates a report with the timestaps of the plates coming out the
+        shoot.
+    draw_caption(value, frame, font, position=(0, 0), color=(0, 0, 255))
+        Draws the number of plates in a frame.
+    draw_processing_info(frame_number, frame, font, position=(0, 0), color=(0, 0, 255))
+        Draws the number of plates in a frame.
+    show_processing(frame, name="Plates")
+        Displays the lightness of the shoot.
+    plot(name="Plates")
+        Plots the lightness of the shoot in every frame. The 'X's correspond to
+        plates.
+    calculate_events(fps, last_frame)
+        Calculates the points where the state changes.
     state_at_frame(frame_number)
         Returns the state of the processor at a given frame.
     """

@@ -13,6 +13,20 @@ class SectionProcessor:
         Process a frame.
     calculate_positions()
         Calculate positions of specific ocurrences.
+    generate_report(fps, sub_name)
+        Generates a report.
+    draw_caption(value, frame, font, position=(0, 0), color=(0, 0, 255))
+        Draws a caption in a frame.
+    draw_text(text, frame, font, color, position)
+        Draws text over a colored background in a frame.
+    draw_processing_info(frame_number, frame, font, position=(0, 0), color=(0, 0, 255))
+        Draws processing information of a frame.
+    show_processing(frame, name="Processing")
+        Displays the frame being processed.
+    plot(name="Plot")
+        Plots information of the processing done.
+    calculate_events(fps, last_frame)
+        Calculate important events in the processed video.
     state_at_frame(frame_number)
         Returns the state of the processor at a given frame.
     """

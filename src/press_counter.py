@@ -50,6 +50,8 @@ class PressCounter(SectionProcessor):
         Tracker that finds the position of the inner area.
     peaks : list
         Indices of the frames where the inner area is in the bottom position.
+    events : ndarray
+        Positions where the state changes.
 
     Methods
     -------
@@ -57,8 +59,20 @@ class PressCounter(SectionProcessor):
         Initializes the tracker.
     process_frame(frame)
         Processes the frame to update the inner area.
-    calculate_press_down_positions()
+    calculate_positions()
         Calculates the frames where the inner area is in the bottom position.
+    generate_report(fps, sub_name):
+        Generates a report with the timestaps of the press moves.
+    draw_caption(value, frame, font, position=(0, 0), color=(0, 0, 255))
+        Draws the number of press moves in a frame.
+    draw_processing_info(frame_number, frame, font, position=(0, 0), color=(0, 0, 255))
+        Draws the number of press moves in a frame.
+    show_processing(frame, name="Press")
+        Displays the inner area (bounding box of the tracking object).
+    plot(name="Press")
+        Plots the positions of the press in every frame.
+    calculate_events(fps, last_frame)
+        Calculate the points where the press changes its state.
     draw_inner_area(frame)
         Draws the inner area.
     state_at_frame(frame_number)

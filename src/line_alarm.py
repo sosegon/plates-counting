@@ -24,16 +24,16 @@ class LineAlarm(SectionProcessor):
         Positions of the marks in unwarped frames.
     dst_points : ndarray
         Positions of the marks in warped frames.
-    upper_left_rectangle : ((int, int), (int, int))
+    upper_left_rect : ((int, int), (int, int))
         Points that define the first section of the left band, from start to
         first mark.
-    upper_right_rectangle : ((int, int), (int, int))
+    upper_right_rect : ((int, int), (int, int))
         Points that define the first section of the right band, from start to
         first mark.
-    lower_left_rectangle : ((int, int), (int, int))
+    lower_left_rect : ((int, int), (int, int))
         Points that define the second section of the left band, from first mark
         to second mark.
-    lower_right_rectangle : ((int, int), (int, int))
+    lower_right_rect : ((int, int), (int, int))
         Points that define the second section of the right band, from first mark
         to second mark.
     h : ndarray
@@ -48,6 +48,8 @@ class LineAlarm(SectionProcessor):
     alarms : array
         Positions where the alarms for every mark in every band have to be
         triggered.
+    events : list
+        Positions where the state of the marks change and their values.
 
     Methods
     -------
@@ -55,12 +57,22 @@ class LineAlarm(SectionProcessor):
         Calculates the transformation matrix, and start the history arrays.
     process_frame(frame)
         Processes a frame to add the threshold limit positions to the histories.
+    calculate_positions()
+        Calculates the frames where the alarms have to be triggered.
+    generate_report()
+        Generates a report with the timestaps of the triggered alarms.
+    draw_caption(value, frame, font, position=(0, 0), color=(0, 0, 255))
+        Draws the alarms in a frame.
+    draw_processing_info(frame_number, frame, font, position=(0, 0), color=(0, 0, 255))
+        Draws the state of the alarms in a frame.
     warp(frame)
         Warp a frame using the transformation matrix.
     draw_rects(warpFrame)
         Draws the sections defined by the marks in a warped frame.
-    calculate_alarms()
-        Calculates the frames where the alarms have to be triggered.
+    plot(name="Alarms")
+        Plots the position of the plates in the band.
+    calculate_events(fps, last_frame)
+        Calculate the points where the marks change their states.
     state_at_frame(frame_number)
         Returns the state of the processor at a given frame.
     """
