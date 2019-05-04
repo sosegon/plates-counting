@@ -224,3 +224,25 @@ class PlatesCounter(SectionProcessor):
         plt.plot(self.peaks, self.light_history[self.peaks], 'X')
         plt.savefig(name)
         plt.figure()
+
+    def calculate_events(self, fps, last_frame):
+        """
+        Calculate the points (frame indices) where the PlatesCounter changes its
+        state. The state is defined by the number of plates.
+
+        Parameters
+        ----------
+        fps : float
+            Frames per second of the processed video.
+        last_frame : int
+            Index of the last frame in the processed video
+        """
+        if self.peaks.shape[0] > 0:
+            self.events = np.ones((self.peaks.shape[0], 2))
+            self.events[:,0] = self.peaks
+            self.events[:,1] = np.arange(self.peaks.shape[0]) + 1
+
+
+            self.events = np.vstack(([0, 0], self.events))
+            self.events = np.vstack((self.events, [last_frame, self.events[-1, 1]]))
+            self.events = self.events.astype(int)
