@@ -58,6 +58,7 @@ class PlatesCounter(SectionProcessor):
         self.height = height
         self.light_history = None
         self.peaks = None
+        self.events = np.array([])
 
     def init(self, frame):
         """
