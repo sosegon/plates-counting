@@ -151,7 +151,7 @@ if __name__ == '__main__':
     analysis = args.analysis
     start_time = args.from_
     end_time = args.to_
-    processors = [press_counter, plates_counter_1, plates_counter_2, line_alarm]
+    processors = [plates_counter_1, plates_counter_2, press_counter, line_alarm]
 
     counter = Counter(filename, processors, (start_time, end_time))
 

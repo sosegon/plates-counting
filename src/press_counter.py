@@ -61,6 +61,8 @@ class PressCounter(SectionProcessor):
         Calculates the frames where the inner area is in the bottom position.
     draw_inner_area(frame)
         Draws the inner area.
+    state_at_frame(frame_number)
+        Returns the state of the processor at a given frame.
     """
 
     def __init__(self,
@@ -403,3 +405,23 @@ class PressCounter(SectionProcessor):
 
         self.events = np.vstack((self.events, [last_frame, self.events[-1, 1]]))
         self.events = self.events.astype(int)
+
+    def state_at_frame(self, frame_number):
+        """
+        Returns the state at a given frame.
+
+        Parameters
+        ----------
+        frame_number : int
+            The point to get the state.
+
+        Returns
+        -------
+        int : The state at a given frame.
+        """
+        indices = np.argwhere(self.events[:, 0] <= frame_number).ravel()
+        state = None
+        if indices.shape[0] > 0:
+            state = self.events[indices[-1], 1]
+
+        return state

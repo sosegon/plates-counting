@@ -1,9 +1,10 @@
 import cv2 as cv
+import numpy as np
 import matplotlib.pyplot as plt
 from press_counter import PressCounter
 from plates_counter import PlatesCounter
 from line_alarm import LineAlarm
-from utils import get_file_simple_name, time_and_date
+from utils import get_file_simple_name, time_and_date, readable_time
 from time import sleep
 
 class Counter:
@@ -33,7 +34,7 @@ class Counter:
     analyse(press_counter)
         Analyses the video to count the number of press moves.
     generate_report()
-        Generates report for every SectionProcessor.
+        Generates a report with changes in state of processors.
     draw_press_counter(self, outname, frame_numbers)
         Creates a video with text of the press moves.
     """
@@ -143,13 +144,47 @@ class Counter:
 
     def generate_report(self):
         """
-        Generates report for every SectionProcessor.
+        Generates report based on the change of states of the PressCounter and
+        LineAlarm. The header of the report is created assuming the processors
+        are passed in order: PlatesCounter 1, PlatesCounter 2, PressCounter,
+        LineAlarm.
         """
         simple_name = get_file_simple_name(self.filename)
         time_date = time_and_date()
 
+        total_events = np.array([0])
         for idx, processor in enumerate(self.processors):
-            processor.generate_report(self.fps, '{}_{}_{}'.format(idx, time_date, simple_name))
+            events = processor.events
+            if type(processor) is PressCounter:
+                if events.shape[0] > 0:
+                    total_events = np.hstack((total_events, events[:, 0]))
+            elif type(processor) is LineAlarm:
+                ev_marks = np.array([0])
+                for idx, ev_mark in enumerate(events):
+                    if ev_mark.shape[0] > 0:
+                        total_events = np.hstack((total_events, ev_mark[:, 0]))
+
+        total_events = np.sort(np.unique(total_events))
+
+        if total_events.shape[0] > 0:
+            records = np.array(["timestamp", "plates left",
+                "plates right", "press",
+                "upper left", "upper right",
+                "lower left", "lower right"],)
+
+            for frame in total_events:
+                timestamp = readable_time(frame / self.fps)
+                record = np.array([timestamp])
+
+                for processor in self.processors:
+                    record = np.hstack((record, processor.state_at_frame(frame)))
+
+                records = np.vstack((records, record))
+
+            np.savetxt('report_{}_{}.csv'.format(time_date, simple_name), records, delimiter=',', fmt='%s')
+        else:
+            records = np.array(['No records generated'])
+            np.savetxt('report_{}_{}.csv'.format(time_date, simple_name), records, delimiter=',', fmt='%s')
 
     def draw_press_counter(self, outname):
         """

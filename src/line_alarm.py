@@ -61,6 +61,8 @@ class LineAlarm(SectionProcessor):
         Draws the sections defined by the marks in a warped frame.
     calculate_alarms()
         Calculates the frames where the alarms have to be triggered.
+    state_at_frame(frame_number)
+        Returns the state of the processor at a given frame.
     """
 
     def __init__(self, src_points, dst_dims):
@@ -592,3 +594,28 @@ class LineAlarm(SectionProcessor):
             total = np.array([[0, state_list[0]],[last_frame, state_list[0]]])
 
         return total.astype(int)
+
+    def state_at_frame(self, frame_number):
+        """
+        Returns the state at a given frame.
+
+        Parameters
+        ----------
+        frame_number : int
+            The point to get the state.
+
+        Returns
+        -------
+        list : The state of every mark at a given frame.
+        """
+        full_state = []
+
+        for event in self.events:
+            indices = np.argwhere(event[:, 0] <= frame_number).ravel()
+            state = None
+            if indices.shape[0]:
+                state = event[indices[-1], 1]
+
+            full_state.append(state)
+
+        return full_state

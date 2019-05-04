@@ -37,6 +37,8 @@ class PlatesCounter(SectionProcessor):
         Processes a frame to add its average lightness to history.
     calculate_plates()
         Calculates the frames where the average lightness is high.
+    state_at_frame(frame_number)
+        Returns the state of the processor at a given frame.
     """
 
     def __init__(self, x_start, y_start, width, height):
@@ -246,3 +248,23 @@ class PlatesCounter(SectionProcessor):
             self.events = np.vstack(([0, 0], self.events))
             self.events = np.vstack((self.events, [last_frame, self.events[-1, 1]]))
             self.events = self.events.astype(int)
+
+    def state_at_frame(self, frame_number):
+        """
+        Returns the state at a given frame.
+
+        Parameters
+        ----------
+        frame_number : int
+            The point to get the state.
+
+        Returns
+        -------
+        int : The state at a given frame.
+        """
+        indices = np.argwhere(self.events[:, 0] <= frame_number).ravel()
+        state = None
+        if indices.shape[0] > 0:
+            state = self.events[indices[-1], 1]
+
+        return state

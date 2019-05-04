@@ -13,6 +13,8 @@ class SectionProcessor:
         Process a frame.
     calculate_positions()
         Calculate positions of specific ocurrences.
+    state_at_frame(frame_number)
+        Returns the state of the processor at a given frame.
     """
 
     def __init__(self):
@@ -193,5 +195,16 @@ class SectionProcessor:
             Frames per second of the processed video.
         last_frame : int
             Index of the last frame in the processed video
+        """
+        pass
+
+    def state_at_frame(self, frame_number):
+        """
+        Returns the state of the processor at a given frame.
+
+        Parameters
+        ----------
+        frame_number : int
+            The point to get the state.
         """
         pass
