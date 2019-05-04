@@ -72,6 +72,10 @@ The program has several parameters to set. The options have default values set b
 
     - **`-a`** Flag used for analysis. Default value is `False`. When the value is `True`, the program displays windows with images of the processing for the press (**Image 3**), the shoots (**Image 4** and **Image 5**), and the bands (**Image 6**).
 
+    - **`-from`** Position to start processing the video. It has the following format HH:MM:SS.
+
+    - **`-to`** Position to finish processing the video. It has the following format HH:MM:SS.
+
 <figure style="text-align: center;">
 	<img src='./doc_img/output_video.png'>
 	<figcaption><b>Image 2. </b>Example of frame in output video.</figcaption>
@@ -100,18 +104,9 @@ The program has several parameters to set. The options have default values set b
 ### Output
 Once the processing is done, the sofware creates several files:
 
-  - **Reports**:
-	  - **Press moves**: It is a csv file with timestamps of the press in down position. The name of the file has the following format:
+  - **Report**: It is a csv file with timestamps and values for the state of each processor. The name of the file has the following format:
 
-	    `press_0_[Date and time]_[Simple name of video].csv`.
-
-	  - **Plates counting**: They are a couple of csv files with the timestamps of the plates coming out of the shoots. The names of the files has the following format:
-
-	    `plates_[Shoot number]_[Date and time]_[Simple name of video].csv`.
-
-	  - **Alarms**: It is a csv file with the timestamps corresponding to the lines of plates reaching the marks in the bands of the machine. The name of the file has the following format:
-
-	    `alarms_3_[Date and time]_[Simple name of video].csv`.
+	    `report_[Date and time]_[Simple name of video].csv`.
 
   - **Plots**:
 	  - **Press moves**: It is a png file showing the signal of press moves created when processing the video. The name of the file has the following format:
