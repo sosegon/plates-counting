@@ -35,7 +35,7 @@ class Counter:
         Analyses the video to count the number of press moves.
     generate_report()
         Generates a report with changes in state of processors.
-    draw_press_counter(self, outname, frame_numbers)
+    create_output_video(self, outname, frame_numbers)
         Creates a video with text of the press moves.
     """
 
@@ -186,7 +186,7 @@ class Counter:
             records = np.array(['No records generated'])
             np.savetxt('report_{}_{}.csv'.format(time_date, simple_name), records, delimiter=',', fmt='%s')
 
-    def draw_press_counter(self, outname):
+    def create_output_video(self, outname):
         """
         Creates a video with text for every processor.
 

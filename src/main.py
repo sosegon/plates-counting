@@ -165,6 +165,6 @@ if __name__ == '__main__':
     if outname is not None:
         # Draw text to coun the press moves in the video
         start = time()
-        counter.draw_press_counter(outname)
+        counter.create_output_video(outname)
         end = time()
         print("Time to create output video: {}".format(readable_time(int(end - start))))
