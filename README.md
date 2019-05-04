@@ -21,7 +21,7 @@ In the command line, go to the src file of this repository, and type the followi
 
 ### Options
 <figure style="text-align: center;">
-	<img src='./doc_img/sections_reference.png'>
+	<img src='./doc_img/sections_reference.jpg'>
 	<figcaption><b>Image 1. </b>Reference sections of the machine in the frames.</figcaption>
 </figure>
 <br/>
@@ -77,27 +77,27 @@ The program has several parameters to set. The options have default values set b
     - **`-to`** Position to finish processing the video. It has the following format HH:MM:SS.
 
 <figure style="text-align: center;">
-	<img src='./doc_img/output_video.png'>
+	<img src='./doc_img/output_video.jpg'>
 	<figcaption><b>Image 2. </b>Example of frame in output video.</figcaption>
 </figure>
 
 <figure style="text-align: center;">
-	<img src='./doc_img/press_analysis.png'>
+	<img src='./doc_img/press_analysis.jpg'>
 	<figcaption><b>Image 3. </b>Image of press processing.</figcaption>
 </figure>
 
 <figure style="text-align: center;">
-	<img src='./doc_img/shoot_left_analysis.png'>
+	<img src='./doc_img/shoot_left_analysis.jpg'>
 	<figcaption><b>Image 4. </b>Image of left shoot processing.</figcaption>
 </figure>
 
 <figure style="text-align: center;">
-	<img src='./doc_img/shoot_right_analysis.png'>
+	<img src='./doc_img/shoot_right_analysis.jpg'>
 	<figcaption><b>Image 5. </b>Image of right shoot processing.</figcaption>
 </figure>
 
 <figure style="text-align: center;">
-	<img src='./doc_img/band_analysis.png'>
+	<img src='./doc_img/band_analysis.jpg'>
 	<figcaption><b>Image 6. </b>Image of bands processing.</figcaption>
 </figure>
 
