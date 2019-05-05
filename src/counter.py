@@ -158,17 +158,12 @@ class Counter:
             if type(processor) is PressCounter:
                 if events.shape[0] > 0:
                     total_events = np.hstack((total_events, events[:, 0]))
-            elif type(processor) is LineAlarm:
-                ev_marks = np.array([0])
-                for idx, ev_mark in enumerate(events):
-                    if ev_mark.shape[0] > 0:
-                        total_events = np.hstack((total_events, ev_mark[:, 0]))
 
         total_events = np.sort(np.unique(total_events))
 
         if total_events.shape[0] > 0:
             records = np.array(["timestamp", "plates left",
-                "plates right", "press",
+                "plates right", "press state", "press moves",
                 "upper left", "upper right",
                 "lower left", "lower right"],)
 

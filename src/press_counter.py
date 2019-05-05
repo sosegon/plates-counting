@@ -431,11 +431,18 @@ class PressCounter(SectionProcessor):
 
         Returns
         -------
-        int : The state at a given frame.
+        ndarray : The state at a given frame: ON/OFF + press moves
         """
-        indices = np.argwhere(self.events[:, 0] <= frame_number).ravel()
-        state = None
-        if indices.shape[0] > 0:
-            state = self.events[indices[-1], 1]
+        press_indices = np.argwhere(self.peaks <= frame_number).ravel()
+        state = press_indices.shape[0]
+
+        event_indices = np.argwhere(self.events[:, 0] <= frame_number).ravel()
+
+        if event_indices.shape[0] > 0:
+            change = self.events[event_indices[-1], 1]
+        else:
+            change = -1
+
+        state = np.hstack((change, state))
 
         return state
