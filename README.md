@@ -108,6 +108,32 @@ Once the processing is done, the sofware creates several files:
 
 	    `report_[Date and time]_[Simple name of video].csv`.
 
+    The content structure of the report is as follows:
+
+    |timestamp|plates left|plates right|press state|press moves|upper left|upper right|lower left|lower right|
+    |-|-|-|-|-|-|-|-|-|
+    |00:00:00|0|0|1|0|0|0|0|0|
+    |00:00:44|37|37|1|39|0|0|0|0|
+
+      - **timestamp**: Time of event.
+
+      - **plates left**: Number of plates that came out of left shoot.
+
+      - **plates right**: Number of plates that came out of right shoot.
+
+      - **press state**: State of the press. 1 is ON, 0 is OFF.
+
+      - **press moves**: Number of press moves.
+
+      - **upper left**: State of the first mark in left band. 0 is not reached, 1 is reached.
+
+      - **upper right**: State of the first mark in right band. 0 is not reached, 1 is reached.
+
+      - **lower left**: State of the second mark in left band. 0 is not reached, 1 is reached.
+
+      - **lower right**: State of the second mark in right band. 0 is not reached, 1 is reached.
+
+
   - **Plots**:
 	  - **Press moves**: It is a png file showing the signal of press moves created when processing the video. The name of the file has the following format:
 
