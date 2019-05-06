@@ -112,7 +112,7 @@ class LineAlarm(SectionProcessor):
         self.history_right = np.array([])
 
         # Factor to avoid None types due to the limit of the image
-        self.offset = 3
+        self.offset = 10
 
         # Points (frame indices) where the alarms are triggered
         self.alarms = np.array([])
@@ -335,12 +335,11 @@ class LineAlarm(SectionProcessor):
 
         # Frame in zenital view
         warp = self.warp(frame)
-
         # Limits to threshold the image in the Light channel
         o_l, o_h = 0, 20
 
         # Limits to threshold the image in RGB channels to detect orange color
-        # r_l, r_h, g_l, g_h, b_l, b_h = 230, 255, 115, 170, 50, 85
+        r_l, r_h, g_l, g_h, b_l, b_h = 230, 255, 115, 170, 50, 85
 
         # Arrays for thresheld images
         th = []
@@ -359,19 +358,19 @@ class LineAlarm(SectionProcessor):
                 box[1][0] - box[0][0],
                 box[1][1] - box[0][1])
             # HLS
-            boi = cv.cvtColor(boi, cv.COLOR_BGR2HLS)
-            # Lightness channel
-            boi = boi[:,:,1]
-            # Pixels within the threshold limits
-            bools = (boi > o_l) & (boi < o_h)
-            # Thresheld box
-            binary = np.zeros_like(boi)
+            # boi = cv.cvtColor(boi, cv.COLOR_BGR2HLS)
+            # # Lightness channel
+            # boi = boi[:,:,1]
+            # # Pixels within the threshold limits
+            # bools = (boi > o_l) & (boi < o_h)
+            # # Thresheld box
+            # binary = np.zeros_like(boi)
 
-            # b = boi[:,:,0]
-            # g = boi[:,:,1]
-            # r = boi[:,:,2]
-            # bools = (r > r_l) & (r < r_h) & (g > g_l) & (g < g_h) & (b > b_l) & (b < b_h)
-            # binary = np.zeros_like(boi[:,:,0])
+            b = boi[:,:,0]
+            g = boi[:,:,1]
+            r = boi[:,:,2]
+            bools = (r > r_l) & (r < r_h) & (g > g_l) & (g < g_h) & (b > b_l) & (b < b_h)
+            binary = np.zeros_like(boi[:,:,0])
 
             # Valid pixels as white
             binary[bools == True] = 1
