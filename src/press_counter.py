@@ -216,7 +216,11 @@ class PressCounter(SectionProcessor):
         # Normalize the vertical positions of the top-left corner of the
         # bounding box of the tracking object. The limits are the initial y
         # position and 25, which is a value determined by observation
-        self.y_pos_history = normalize(self.y_pos_history, self.y_bar_start, 25)
+        self.y_pos_history = normalize(self.y_pos_history, self.y_bar_start, self.y_bar_start + 15)
+
+        # Move the curve to start in 0
+        min_ = np.min(self.y_pos_history)
+        self.y_pos_history = self.y_pos_history - min_
 
         # Find the peaks of the sine-shape curve.
         self.peaks = find_peaks(self.y_pos_history, 0.5)
