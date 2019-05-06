@@ -135,7 +135,7 @@ if __name__ == '__main__':
     wp1, wp2 = args.shoot_w_1, args.shoot_w_2
     hp1, hp2 = args.shoot_h_1, args.shoot_h_2
 
-    plates_counter_1 = PlatesCounter(xp1, yp1, wp1, hp2)
+    plates_counter_1 = PlatesCounter(xp1, yp1, wp1, hp1)
     plates_counter_2 = PlatesCounter(xp2, yp2, wp2, hp2)
 
     # LineAlarm
