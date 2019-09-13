@@ -111,7 +111,7 @@ class SectionProcessor:
         position : (int, int)
             Position in the frame to start drawing the caption.
         """
-        font_scale = 0.3
+        font_scale = 0.4
         thickness = 1
 
         box_coords = self.__get_box_text(position, text, font, font_scale, thickness)
