@@ -183,7 +183,8 @@ class Counter:
 
     def create_output_video(self, outname):
         """
-        Creates a video with text for every processor.
+        Creates a video with text for every processor. It also creates videos
+        for each processor.
 
         Parameters
         ----------
@@ -196,12 +197,26 @@ class Counter:
         frame_width = int(cap.get(3))
         frame_height = int(cap.get(4))
 
-        # Output video.
+        # Main output video.
         out = cv.VideoWriter(
             outname,
             cv.VideoWriter_fourcc('M','P','4','V'),
             self.fps,
             (frame_width, frame_height))
+
+        # Section output videos.
+        outs = []
+        for idx, processor in enumerate(self.processors):
+            frame_width = processor.section_width
+            frame_height = processor.section_height
+
+            s_out = cv.VideoWriter(
+                "{}_{}_{}".format(idx, processor.__class__.__name__, outname),
+                cv.VideoWriter_fourcc('M','P','4','V'),
+                self.fps,
+                (frame_width, frame_height))
+
+            outs.append(s_out)
 
         font = cv.FONT_HERSHEY_TRIPLEX
         frame_counter = 0
@@ -224,9 +239,9 @@ class Counter:
                 break
 
             # Draw the captions
-            for processor in self.processors:
+            for idx, processor in enumerate(self.processors):
+                outs[idx].write(processor.extract_section(frame))
                 processor.draw_processing_info(frame_counter_processor, frame, font)
-
             out.write(frame)
             frame_counter = frame_counter + 1
             frame_counter_processor = frame_counter_processor + 1

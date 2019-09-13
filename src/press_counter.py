@@ -77,6 +77,8 @@ class PressCounter(SectionProcessor):
         Draws the inner area.
     state_at_frame(frame_number)
         Returns the state of the processor at a given frame.
+    extract_section(frame)
+        Extracts the section of the frame where the processor works.
     """
 
     def __init__(self,
@@ -152,6 +154,10 @@ class PressCounter(SectionProcessor):
                 self.tracker = cv.TrackerMOSSE_create()
             if tracker_type == "CSRT":
                 self.tracker = cv.TrackerCSRT_create()
+
+        # Section dimensions
+        self.section_width = self.x_end - self.x_start
+        self.section_height = self.y_end - self.y_start
 
     def init(self, frame):
         """
@@ -450,3 +456,19 @@ class PressCounter(SectionProcessor):
         state = np.hstack((change, state))
 
         return state
+
+    def extract_section(self, frame):
+        """
+        Extracts the section of the frame where the processor works.
+
+        Parameters
+        ----------
+        frame : ndarray
+            3-channel image.
+
+        Returns
+        -------
+        ndarray : 3-channeld section of the frame.
+        """
+        return extract_area(frame, self.x_start, self.y_start,
+            self.section_width, self.section_height)

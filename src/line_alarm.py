@@ -75,6 +75,8 @@ class LineAlarm(SectionProcessor):
         Calculate the points where the marks change their states.
     state_at_frame(frame_number)
         Returns the state of the processor at a given frame.
+    extract_section(frame)
+        Extracts the section of the frame where the processor works.
     """
 
     def __init__(self, src_points, dst_dims):
@@ -137,6 +139,10 @@ class LineAlarm(SectionProcessor):
         i, l, r = self.__process_frame(frame)
         self.history_left = np.hstack((self.history_left, l))
         self.history_right = np.hstack((self.history_right, r))
+
+        # Section dimensions
+        section, left, right = self.__process_frame(frame)
+        self.section_height, self.section_width = section.shape
 
     def process_frame(self, frame):
         """
@@ -634,3 +640,21 @@ class LineAlarm(SectionProcessor):
             full_state.append(state)
 
         return full_state
+
+    def extract_section(self, frame):
+        """
+        Extracts the section of the frame where the processor works. The 
+        perspective of the section has been corrected to get a top view.
+
+        Parameters
+        ----------
+        frame : ndarray
+            3-channel image.
+
+        Returns
+        -------
+        ndarray : 3-channeld section of the frame.
+        """
+        section, left, right =self. __process_frame(frame)
+
+        return np.dstack((section, section, section))

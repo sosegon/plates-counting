@@ -55,6 +55,8 @@ class PlatesCounter(SectionProcessor):
         Calculates the points where the state changes.
     state_at_frame(frame_number)
         Returns the state of the processor at a given frame.
+    extract_section(frame)
+        Extracts the section of the frame where the processor works.
     """
 
     def __init__(self, x_start, y_start, width, height):
@@ -72,8 +74,8 @@ class PlatesCounter(SectionProcessor):
         """
         self.x_start = x_start
         self.y_start = y_start
-        self.width = width
-        self.height = height
+        self.section_width = width
+        self.section_height = height
         self.light_history = None
         self.peaks = None
         self.events = np.array([])
@@ -90,7 +92,7 @@ class PlatesCounter(SectionProcessor):
 
         # Extract the shoot area.
         area = extract_area(frame, self.x_start, self.y_start,
-            self.width, self.height)
+            self.section_width, self.section_height)
 
         # Change to color space to get the lightness.
         area = cv.cvtColor(area, cv.COLOR_BGR2HLS)
@@ -112,7 +114,7 @@ class PlatesCounter(SectionProcessor):
             raise ValueError('Counter is not initialized')
 
         area = extract_area(frame, self.x_start, self.y_start,
-            self.width, self.height)
+            self.section_width, self.section_height)
 
         area = cv.cvtColor(area, cv.COLOR_BGR2HLS)
 
@@ -216,7 +218,7 @@ class PlatesCounter(SectionProcessor):
             Name of the window to display the frame.
         """
         shoot = extract_area(frame, self.x_start, self.y_start,
-            self.width, self.height)
+            self.section_width, self.section_height)
 
         H = shoot.shape[0]
         W = shoot.shape[1]
@@ -284,3 +286,19 @@ class PlatesCounter(SectionProcessor):
             state = self.events[indices[-1], 1]
 
         return state
+
+    def extract_section(self, frame):
+        """
+        Extracts the section of the frame where the processor works.
+
+        Parameters
+        ----------
+        frame : ndarray
+            3-channel image.
+
+        Returns
+        -------
+        ndarray : 3-channeld section of the frame.
+        """
+        return extract_area(frame, self.x_start, self.y_start,
+            self.section_width, self.section_height)

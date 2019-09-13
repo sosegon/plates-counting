@@ -5,6 +5,13 @@ class SectionProcessor:
 
     ...
 
+    Attributes
+    ----------
+    section_width : int
+        Width of the section where the processor works.
+    section_height : int
+        Height of the section where the processor works.
+    
     Methods
     -------
     init(frame)
@@ -29,10 +36,13 @@ class SectionProcessor:
         Calculate important events in the processed video.
     state_at_frame(frame_number)
         Returns the state of the processor at a given frame.
+    extract_section(frame)
+        Extracts the section of the frame where the processor works.
     """
 
     def __init__(self):
-        pass
+        self.section_width = 0
+        self.section_height = 0
 
     def init(self, frame):
         """
@@ -220,5 +230,16 @@ class SectionProcessor:
         ----------
         frame_number : int
             The point to get the state.
+        """
+        pass
+
+    def extract_section(self, frame):
+        """
+        Extracts the section of the frame where the processor works.
+
+        Parameters
+        ----------
+        frame : ndarray
+            3-channel image.
         """
         pass
