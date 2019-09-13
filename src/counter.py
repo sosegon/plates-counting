@@ -99,10 +99,10 @@ class Counter:
             frame_counter = frame_counter + 1
 
             # Exit if ESC pressed
-            k = cv.waitKey(1) & 0xff
-            if k == 27:
-                interrupted = True
-                break
+            # k = cv.waitKey(1) & 0xff
+            # if k == 27:
+            #     interrupted = True
+            #     break
 
         for idx, processor in enumerate(self.processors):
             simple_name = get_file_simple_name(self.filename)
@@ -114,7 +114,7 @@ class Counter:
             processor.calculate_events(self.fps, last_frame)
             processor.plot("{}_{}_{}_{}.png".format(type(processor).__name__ ,idx, time_and_date(), simple_name))
 
-            cv.destroyAllWindows()
+            # cv.destroyAllWindows()
 
         cap.release()
 
@@ -199,11 +199,11 @@ class Counter:
         # Output video.
         out = cv.VideoWriter(
             outname,
-            cv.VideoWriter_fourcc('H','2','6','4'),
+            cv.VideoWriter_fourcc('M','P','4','V'),
             self.fps,
             (frame_width, frame_height))
 
-        font = cv.FONT_HERSHEY_SIMPLEX
+        font = cv.FONT_HERSHEY_TRIPLEX
         frame_counter = 0
 
         # Skip frames until reaching the start_frame
